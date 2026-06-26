@@ -1,0 +1,4593 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPCET - Student Portal</title>
+    <title>St. Peter's - Student Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="api.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        :root {
+            --sidebar-w: 240px;
+            --header-h: 64px;
+            --accent: #4f7df3;
+            --accent-dark: #3b6bda;
+            --sidebar-bg: #1a2332;
+            --sidebar-hover: rgba(255, 255, 255, 0.07);
+            --sidebar-active: rgba(79, 125, 243, 0.18);
+            --bg: #f0f4f8;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --text-dark: #1e293b;
+            --text-mid: #64748b;
+            --text-light: #94a3b8;
+            --green: #10b981;
+            --orange: #f59e0b;
+            --red: #ef4444;
+            --teal: #0d9488;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-dark);
+        }
+
+        /* =============== AUTH PAGE =============== */
+        #auth-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1a2332 50%, #0d2d4a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-wrap {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .auth-brand {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .auth-brand-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--accent);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #fff;
+            margin: 0 auto 12px;
+            box-shadow: 0 8px 24px rgba(79, 125, 243, 0.35);
+        }
+
+        .auth-brand h1 {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .auth-brand p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .auth-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            background: #fafbff;
+        }
+
+        .auth-tab-btn:hover:not(.active) {
+            background: #f8fafc;
+        }
+
+        .auth-panel {
+            display: none;
+            padding: 28px;
+        }
+
+        .auth-panel.active {
+            display: block;
+        }
+
+        .auth-panel h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .auth-panel p.subtitle {
+            font-size: 0.82rem;
+            color: var(--text-mid);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.82rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: border 0.2s;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background: #fff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(79, 125, 243, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .auth-submit {
+            width: 100%;
+            padding: 11px;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .auth-submit:hover {
+            background: var(--accent-dark);
+        }
+
+        /* =============== MAIN PORTAL LAYOUT =============== */
+        #portal-wrapper {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--sidebar-bg);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 200;
+            transition: transform 0.3s;
+        }
+
+        .sidebar-brand {
+            padding: 20px 16px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .brand-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .brand-name {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .brand-sub {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.72rem;
+            margin-top: 1px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .nav-group-label {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            padding: 12px 20px 6px;
+        }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .nav-tab:hover {
+            background: var(--sidebar-hover);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .nav-tab.active {
+            background: var(--sidebar-active);
+            color: #fff;
+            border-left: 3px solid var(--accent);
+            padding-left: 17px;
+        }
+
+        .nav-tab i {
+            width: 18px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-student-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .student-avatar {
+            width: 34px;
+            height: 34px;
+            background: var(--accent);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .student-info-text {
+            overflow: hidden;
+        }
+
+        .student-info-name {
+            color: #fff;
+            font-size: 0.82rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .student-info-dept {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.7rem;
+            margin-top: 1px;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            border-radius: 8px;
+            transition: background 0.15s, color 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+        }
+
+        /* =============== HEADER =============== */
+        .main-wrapper {
+            margin-left: var(--sidebar-w);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-header {
+            height: var(--header-h);
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-toggle {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--bg);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-mid);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-college h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .header-college span {
+            font-size: 0.72rem;
+            color: var(--text-mid);
+            display: block;
+            margin-top: 1px;
+        }
+
+        .header-search {
+            flex: 1;
+            max-width: 360px;
+            margin-left: auto;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            gap: 8px;
+            height: 38px;
+        }
+
+        .header-search i {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .header-search input {
+            border: none;
+            background: transparent;
+            font-size: 0.875rem;
+            color: var(--text-dark);
+            outline: none;
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .header-search input::placeholder {
+            color: var(--text-light);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--bg);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-mid);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .header-icon-btn:hover {
+            background: var(--border);
+        }
+
+        .notif-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background: var(--red);
+            border-radius: 50%;
+            border: 2px solid var(--white);
+            display: none;
+        }
+
+        .header-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .pname {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+
+        .prole {
+            font-size: 0.7rem;
+            color: var(--text-mid);
+        }
+
+        /* =============== MAIN CONTENT =============== */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .page-header p {
+            font-size: 0.82rem;
+            color: var(--text-mid);
+            margin-top: 2px;
+        }
+
+        /* =============== CARDS =============== */
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+
+        /* =============== STAT GRID =============== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .stat-icon.blue {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .stat-icon.green {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .stat-icon.orange {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .stat-icon.purple {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .stat-sub {
+            font-size: 0.72rem;
+            color: var(--text-mid);
+            margin-top: 4px;
+        }
+
+        /* =============== BUTTONS =============== */
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg);
+        }
+
+        .btn,
+        .btn-view,
+        .btn-register,
+        .btn-pay,
+        .btn-verify,
+        .btn-approve,
+        .btn-reject {
+            padding: 6px 12px;
+            border-radius: 7px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: opacity 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-view {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .btn-view:hover {
+            background: #bfdbfe;
+        }
+
+        .btn-register {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .btn-register:hover {
+            background: #a7f3d0;
+        }
+
+        .btn-pay {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-pay:hover {
+            background: #fde68a;
+        }
+
+        .btn-verify {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .btn-verify:hover {
+            background: #ddd6fe;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* =============== FILTER ROW =============== */
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 12px;
+            height: 36px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .search-box i {
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0 12px;
+            height: 36px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            background: #fff;
+        }
+
+        .filter-select {
+            border: 1px solid var(--border);
+            background: var(--white);
+            border-radius: 8px;
+            padding: 0 10px;
+            height: 36px;
+            font-size: 0.82rem;
+            color: var(--text-dark);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+        }
+
+        .filter-select:focus {
+            border-color: var(--accent);
+        }
+
+        /* =============== TABLE =============== */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.83rem;
+            color: var(--text-dark);
+        }
+
+        .data-table thead tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            padding: 11px 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: var(--text-mid);
+            background: #fafbfc;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 11px 14px;
+            border-bottom: 1px solid #f8fafc;
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* =============== STATUS BADGES =============== */
+        .status-badge,
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved,
+        .status-verified,
+        .status-confirmed,
+        .status-present {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-rejected,
+        .status-absent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-waiting {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .status-paid {
+            background: #ccfbf1;
+            color: #115e59;
+        }
+
+        .status-unpaid {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-free {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* =============== EVENTS GRID =============== */
+        .events-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .event-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            transition: box-shadow 0.2s;
+        }
+
+        .event-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .event-header {
+            padding: 16px 18px;
+            color: #fff;
+        }
+
+        .event-header.inter-college {
+            background: linear-gradient(135deg, #4f7df3, #6366f1);
+        }
+
+        .event-header.intra-college {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .event-header h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .event-header p {
+            font-size: 0.78rem;
+            opacity: 0.85;
+        }
+
+        .event-body {
+            padding: 14px 18px;
+        }
+
+        .event-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-mid);
+            margin-bottom: 6px;
+        }
+
+        .event-detail i {
+            width: 14px;
+            color: var(--accent);
+            font-size: 0.75rem;
+        }
+
+        .event-actions {
+            padding: 12px 18px;
+            background: #fafbfc;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* =============== OD FLOW =============== */
+        .od-flow {
+            display: flex;
+            align-items: stretch;
+            margin: 16px 0 20px;
+            overflow-x: auto;
+            gap: 0;
+        }
+
+        .flow-step {
+            flex: 1;
+            text-align: center;
+            padding: 14px 8px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            min-width: 80px;
+        }
+
+        .flow-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid var(--border);
+            z-index: 1;
+        }
+
+        .flow-step.completed {
+            background: #d1fae5;
+            border-color: #a7f3d0;
+            color: #065f46;
+        }
+
+        .flow-step.active {
+            background: #dbeafe;
+            border-color: #93c5fd;
+            color: #1e40af;
+        }
+
+        .flow-step.rejected {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+
+        .flow-step i {
+            font-size: 1.3rem;
+        }
+
+        /* =============== NOTIFICATIONS =============== */
+        .notification-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item.unread {
+            background: #f0f9ff;
+            margin: 0 -4px;
+            padding: 12px 4px;
+            border-radius: 8px;
+        }
+
+        .notification-item strong {
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            display: block;
+        }
+
+        .notification-item p {
+            font-size: 0.78rem;
+            color: var(--text-mid);
+            margin-top: 3px;
+        }
+
+        .notification-item .notif-time {
+            font-size: 0.72rem;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        /* =============== MODALS =============== */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 700px;
+            margin: 40px auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close {
+            position: absolute;
+            right: 18px;
+            top: 16px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--text-mid);
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: var(--text-dark);
+        }
+
+        .detail-group {
+            margin-bottom: 10px;
+        }
+
+        .detail-group label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--text-mid);
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .detail-group p {
+            font-size: 0.88rem;
+            color: var(--text-dark);
+            background: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            margin: 0;
+        }
+
+        .form-actions {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* =============== PAYMENT MODAL =============== */
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .payment-method {
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .payment-method:hover {
+            border-color: var(--accent);
+            background: #f0f5ff;
+        }
+
+        .payment-method.selected {
+            border-color: var(--accent);
+            background: #eff6ff;
+        }
+
+        .payment-method i {
+            font-size: 1.6rem;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .payment-method h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .payment-method p {
+            font-size: 0.72rem;
+            color: var(--text-mid);
+        }
+
+        /* =============== CERT PREVIEW =============== */
+        .certificate-preview {
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .certificate-preview img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+        }
+
+        /* =============== TOAST =============== */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 9999;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.3s;
+            pointer-events: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast i {
+            color: var(--green);
+        }
+
+        .toast.error i {
+            color: var(--red);
+        }
+
+        @media (max-width:768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .events-list {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* =============== AI CHATBOT =============== */
+        #chatbot-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 10000;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #chatbot-toggle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 20px rgba(79, 125, 243, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        #chatbot-toggle:hover {
+            transform: scale(1.05);
+            background: var(--accent-dark);
+        }
+
+        #chatbot-window {
+            position: absolute;
+            bottom: 76px;
+            right: 0;
+            width: 320px;
+            height: 400px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform-origin: bottom right;
+            transform: scale(0);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+            pointer-events: none;
+        }
+
+        #chatbot-window.open {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .chatbot-header {
+            background: var(--accent);
+            color: #fff;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .chatbot-header i {
+            font-size: 1.2rem;
+        }
+
+        .chatbot-close {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .chatbot-close:hover {
+            opacity: 1;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f8fafc;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            animation: fadeInMsg 0.3s ease;
+        }
+
+        @keyframes fadeInMsg {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-msg.bot {
+            background: #fff;
+            color: var(--text-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .chat-msg.user {
+            background: var(--accent);
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 8px rgba(79, 125, 243, 0.2);
+        }
+
+        .chatbot-input {
+            padding: 12px;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chatbot-input input:focus {
+            border-color: var(--accent);
+        }
+
+        .chatbot-input button {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .chatbot-input button:hover {
+            background: var(--accent-dark);
+        }
+
+        .chatbot-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .suggestion-chip {
+            font-size: 0.75rem;
+            padding: 6px 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            color: var(--text-mid);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-chip:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .typing-indicator {
+            display: none;
+            gap: 4px;
+            padding: 12px 16px;
+            background: #fff;
+            border-radius: 12px;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-light);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typingBounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* =============== PERFORMANCE MONITORING =============== */
+        .perf-charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .badge-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px 16px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            position: relative;
+        }
+
+        .badge-card.locked {
+            filter: grayscale(100%) opacity(50%);
+            background: #f8fafc;
+            border-style: dashed;
+        }
+
+        .badge-card.unlocked {
+            border-color: rgba(79, 125, 243, 0.25);
+            background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+            box-shadow: 0 4px 12px rgba(79, 125, 243, 0.05);
+        }
+
+        .badge-card.unlocked:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(79, 125, 243, 0.15);
+            border-color: var(--accent);
+        }
+
+        .badge-icon-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .badge-icon-wrap.gold {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1.5px solid #fde68a;
+        }
+
+        .badge-icon-wrap.silver {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1.5px solid #cbd5e1;
+        }
+
+        .badge-icon-wrap.bronze {
+            background: #ffedd5;
+            color: #c2410c;
+            border: 1.5px solid #fed7aa;
+        }
+
+        .badge-icon-wrap.blue {
+            background: #dbeafe;
+            color: #2563eb;
+            border: 1.5px solid #bfdbfe;
+        }
+
+        .badge-icon-wrap.purple {
+            background: #f3e8ff;
+            color: #7e22ce;
+            border: 1.5px solid #e9d5ff;
+        }
+
+        .badge-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .badge-desc {
+            font-size: 0.72rem;
+            color: var(--text-mid);
+            line-height: 1.35;
+        }
+
+        .badge-status {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+
+        .badge-status.unlocked {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-status.locked {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        /* =============== FOCUS GAMES STYLE =============== */
+        .game-tabs-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .game-tab-btn {
+            padding: 10px 24px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-mid);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .game-tab-btn.active {
+            background: var(--accent);
+            color: var(--white);
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(79, 125, 243, 0.25);
+        }
+
+        .game-tab-btn:hover:not(.active) {
+            background: var(--bg);
+            color: var(--text-dark);
+            border-color: var(--text-light);
+        }
+
+        .game-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            margin-bottom: 24px;
+        }
+
+        /* Typing Game Styles */
+        .typing-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .typing-difficulty {
+            display: flex;
+            gap: 8px;
+        }
+
+        .difficulty-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .difficulty-chip.active {
+            background: var(--accent-dark);
+            color: var(--white);
+            border-color: var(--accent-dark);
+        }
+
+        .text-display-box {
+            background: #f8fafc;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 1.15rem;
+            line-height: 1.7;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+            max-height: 220px;
+            overflow-y: auto;
+            word-wrap: break-word;
+            font-family: 'Courier New', Courier, monospace;
+            position: relative;
+            user-select: none;
+        }
+
+        .text-display-box span {
+            position: relative;
+            transition: all 0.1s ease;
+        }
+
+        .text-display-box span.correct {
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .text-display-box span.incorrect {
+            color: var(--red);
+            background: rgba(239, 68, 68, 0.15);
+            border-radius: 2px;
+            font-weight: 600;
+        }
+
+        .text-display-box span.current {
+            border-bottom: 3px solid var(--accent);
+            animation: cursorBlink 1s infinite;
+        }
+
+        @keyframes cursorBlink {
+            50% {
+                border-color: transparent;
+            }
+        }
+
+        .typing-input-area {
+            position: absolute;
+            opacity: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .typing-focus-prompt {
+            position: absolute;
+            inset: 0;
+            background: rgba(248, 250, 252, 0.95);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--accent);
+            cursor: pointer;
+            border-radius: 12px;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .typing-focus-prompt i {
+            margin-right: 8px;
+            animation: bounceLeftRight 1.5s infinite;
+        }
+
+        @keyframes bounceLeftRight {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(4px);
+            }
+        }
+
+        .game-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .game-stat-card {
+            background: #fafbff;
+            border: 1px solid rgba(79, 125, 243, 0.12);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .game-stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .game-stat-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-top: 4px;
+        }
+
+        .game-stat-title {
+            font-size: 0.75rem;
+            color: var(--text-mid);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Memory Match Game Styles */
+        .memory-game-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            max-width: 480px;
+            margin: 0 auto 24px;
+            perspective: 800px;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .memory-card:active {
+            transform: scale(0.97);
+            transition: transform 0.1s;
+        }
+
+        .memory-card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+        }
+
+        .memory-card-front {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-color: #334155;
+            color: var(--accent);
+        }
+
+        .memory-card-front::after {
+            content: '?';
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        .memory-card-back {
+            background: var(--white);
+            transform: rotateY(180deg);
+            font-size: 2rem;
+            color: var(--accent);
+            box-shadow: inset 0 0 12px rgba(79, 125, 243, 0.05);
+        }
+
+        .memory-card.matched .memory-card-back {
+            background: #f0fdf4;
+            color: var(--green);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .memory-card.matched {
+            pointer-events: none;
+            animation: matchSuccess 0.5s ease;
+        }
+
+        @keyframes matchSuccess {
+
+            0%,
+            100% {
+                transform: rotateY(180deg) scale(1);
+            }
+
+            50% {
+                transform: rotateY(180deg) scale(1.08);
+            }
+        }
+
+        .game-actions-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .memory-grid {
+                gap: 8px;
+            }
+
+            .memory-card-front::after {
+                font-size: 1.3rem;
+            }
+
+            .memory-card-back {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ========================= AUTH PAGE ========================= -->
+    <div id="auth-page">
+        <div class="auth-wrap">
+            <div class="auth-brand">
+                <div class="auth-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+                <h1>SPCET Student Portal</h1>
+                <p>St.peter's College of Engineering & Technology</p>
+            </div>
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <button class="auth-tab-btn active" id="tab-register" onclick="switchAuthTab('register')">
+                        <i class="fas fa-user-plus"></i> Create Profile
+                    </button>
+                    <button class="auth-tab-btn" id="tab-login" onclick="switchAuthTab('login')">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </div>
+
+                <!-- Register Panel -->
+                <div class="auth-panel active" id="panel-register">
+                    <h3>Create Your Profile</h3>
+                    <p class="subtitle">Fill in your details to get started with the Student Portal</p>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="reg-name">Full Name *</label>
+                            <input type="text" id="reg-name" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="reg-register-number">Register Number *</label>
+                                <input type="text" id="reg-register-number" placeholder="e.g. 21CS001" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-college">College Name *</label>
+                                <input type="text" id="reg-college" placeholder="College name" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-department">Department *</label>
+                            <select id="reg-department" required>
+                                <option value="">Select Department</option>
+                                <option value="CSE">Computer Science</option>
+                                <option value="IT">Information Technology</option>
+                                <option value="AIDS">AI & Data Science</option>
+                                <option value="ECE">Electronics & Communication</option>
+                                <option value="EEE">Electrical & Electronics</option>
+                                <option value="MECH">Mechanical</option>
+                                <option value="CIVIL">Civil</option>
+                                <option value="CHEM">Chemical</option>
+                                <option value="BIOTECH">Biotechnology</option>
+                            </select>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="reg-year">Year *</label>
+                                <select id="reg-year" required>
+                                    <option value="">Select</option>
+                                    <option value="1">First Year</option>
+                                    <option value="2">Second Year</option>
+                                    <option value="3">Third Year</option>
+                                    <option value="4">Fourth Year</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-semester">Semester *</label>
+                                <select id="reg-semester" required>
+                                    <option value="">Select</option>
+                                    <option value="1">Sem 1</option>
+                                    <option value="2">Sem 2</option>
+                                    <option value="3">Sem 3</option>
+                                    <option value="4">Sem 4</option>
+                                    <option value="5">Sem 5</option>
+                                    <option value="6">Sem 6</option>
+                                    <option value="7">Sem 7</option>
+                                    <option value="8">Sem 8</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="reg-password">Password *</label>
+                                <input type="password" id="reg-password" placeholder="Min 6 characters" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-confirm-password">Confirm Password *</label>
+                                <input type="password" id="reg-confirm-password" placeholder="Re-enter password"
+                                    required>
+                            </div>
+                        </div>
+                        <button type="submit" class="auth-submit">
+                            <i class="fas fa-rocket"></i> Create Profile & Enter Portal
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Login Panel -->
+                <div class="auth-panel" id="panel-login">
+                    <h3>Welcome Back!</h3>
+                    <p class="subtitle">Enter your credentials to access your student dashboard</p>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="register-number">Register Number</label>
+                            <input type="text" id="register-number" placeholder="Enter your register number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="auth-submit">
+                            <i class="fas fa-sign-in-alt"></i> Login to Portal
+                        </button>
+                        <p style="text-align:center;margin-top:14px;font-size:0.82rem;color:var(--text-mid);">
+                            New student? <a href="javascript:void(0)" onclick="switchAuthTab('register')"
+                                style="color:var(--accent);font-weight:600;text-decoration:none;">Create your
+                                profile</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================= PORTAL WRAPPER ========================= -->
+    <div id="portal-wrapper">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-row">
+                    <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div>
+                        <div class="brand-name">SPCET</div>
+                        <div class="brand-name">St. Peter's</div>
+                        <div class="brand-sub">Student Portal</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-group-label">My Dashboard</div>
+                <button class="nav-tab active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </button>
+                <button class="nav-tab" data-section="events">
+                    <i class="fas fa-calendar-alt"></i> Browse Events
+                </button>
+                <div class="nav-group-label">My Activity</div>
+                <button class="nav-tab" data-section="certificates">
+                    <i class="fas fa-certificate"></i> My Certificates
+                </button>
+                <button class="nav-tab" data-section="od-applications">
+                    <i class="fas fa-file-signature"></i> OD Applications
+                </button>
+                <button class="nav-tab" data-section="registrations">
+                    <i class="fas fa-list-alt"></i> My Registrations
+                </button>
+                <button class="nav-tab" data-section="performance">
+                    <i class="fas fa-chart-line"></i> Performance
+                </button>
+                <div class="nav-group-label">Brain Gym</div>
+                <button class="nav-tab" data-section="games">
+                    <i class="fas fa-gamepad"></i> Focus Games
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-student-info">
+                    <div class="student-avatar" id="sidebar-avatar">S</div>
+                    <div class="student-info-text">
+                        <div class="student-info-name" id="sidebar-student-name">Student</div>
+                        <div class="student-info-dept" id="sidebar-student-dept">Department</div>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN WRAPPER -->
+        <div class="main-wrapper">
+            <!-- HEADER -->
+            <header class="top-header">
+                <button class="header-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="header-college">
+                    <h2>SPCET</h2>
+                    <h2>St. Peter's</h2>
+                    <span>Student Portal</span>
+                </div>
+                <div
+                    style="flex: 1; text-align: center; padding: 0 20px; font-style: italic; color: var(--text-mid); font-size: 0.95rem; font-weight: 500; display: flex; align-items: center; justify-content: center;">
+                    "Education is the most powerful weapon which you can use to change the world."
+                </div>
+                <div class="header-actions">
+                    <div class="header-profile">
+                        <div class="avatar" id="header-avatar">S</div>
+                        <div>
+                            <div class="pname" id="student-name">Student</div>
+                            <div class="prole">Student</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN CONTENT -->
+            <div class="main-content" id="main-content">
+
+                <!-- ======== DASHBOARD ======== -->
+                <section class="content-section active" id="dashboard-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 id="dashboard-greeting">Welcome! </h1>
+
+                        </div>
+                        <div class="quick-actions">
+                            <button class="btn-primary" onclick="openModal('upload-certificate-modal')">
+                                <i class="fas fa-upload"></i> Upload Certificate
+                            </button>
+                            <button class="btn-secondary" onclick="openModal('apply-od-modal')">
+                                <i class="fa-solid fa-file-circle-check"></i>
+                                Apply for OD
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-top">
+                                <span class="stat-label">Registrations</span>
+                                <div class="stat-icon blue"><i class="fas fa-calendar-check"></i></div>
+                            </div>
+                            <div class="stat-value" id="stat-registrations">0</div>
+                            <div class="stat-sub">Event registrations</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-top">
+                                <span class="stat-label">Certificates</span>
+                                <div class="stat-icon purple"><i class="fas fa-certificate"></i></div>
+                            </div>
+                            <div class="stat-value" id="stat-certificates">0</div>
+                            <div class="stat-sub">Uploaded</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-top">
+                                <span class="stat-label">OD Applications</span>
+                                <div class="stat-icon orange"><i class="fas fa-file-alt"></i></div>
+                            </div>
+                            <div class="stat-value" id="stat-od-apps">0</div>
+                            <div class="stat-sub">Applications submitted</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-top">
+                                <span class="stat-label">Verified Certs</span>
+                                <div class="stat-icon green"><i class="fas fa-trophy"></i></div>
+                            </div>
+                            <div class="stat-value" id="stat-verified">0</div>
+                            <div class="stat-sub">Admin verified</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-bell" style="color:var(--orange);margin-right:8px;"></i>Recent
+                            Notifications</h3>
+                        <div id="notifications-list">
+                            <p style="color:var(--text-light);text-align:center;padding:20px;">
+                                <i class="fas fa-bell-slash"></i> No notifications yet
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-calendar-star" style="color:var(--accent);margin-right:8px;"></i>Upcoming
+                            Events</h3>
+                        <div id="upcoming-events-list" class="events-list"></div>
+                    </div>
+                </section>
+
+                <!-- ======== EVENTS ======== -->
+                <section class="content-section" id="events-section">
+                    <div class="page-header">
+                        <div>
+                            <h1>Browse Events</h1>
+                            <p>Discover and register for upcoming events</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="filter-row">
+                            <div class="search-box" style="flex:1;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="event-search" placeholder="Search events...">
+                            </div>
+                            <select class="filter-select" id="event-type-filter">
+                                <option value="">All Types</option>
+                                <option value="inter-college">Inter-College</option>
+                                <option value="intra-college">Intra-College</option>
+                            </select>
+                            <select class="filter-select" id="event-dept-filter">
+                                <option value="">All Departments</option>
+                            </select>
+                            <select class="filter-select" id="event-payment-filter">
+                                <option value="">All Payment Types</option>
+                                <option value="free">Free Events</option>
+                                <option value="paid">Paid Events</option>
+                            </select>
+                        </div>
+                        <div id="events-list" class="events-list"></div>
+                    </div>
+                </section>
+
+                <!-- ======== CERTIFICATES ======== -->
+                <section class="content-section" id="certificates-section">
+                    <div class="page-header">
+                        <div>
+                            <h1>My Certificates</h1>
+                            <p>Manage your uploaded certificates</p>
+                        </div>
+                        <button class="btn-primary" onclick="openModal('upload-certificate-modal')">
+                            <i class="fas fa-upload"></i> Upload Certificate
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="filter-row">
+                            <div class="search-box" style="flex:1;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="my-cert-search" placeholder="Search certificates...">
+                            </div>
+                            <select class="filter-select" id="my-cert-status-filter">
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="verified">Verified</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Event Name</th>
+                                        <th>Achievement</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Admin Remarks</th>
+                                        <th>Submitted</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="my-certificates-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======== OD APPLICATIONS ======== -->
+                <section class="content-section" id="od-applications-section">
+                    <div class="page-header">
+                        <div>
+                            <h1>My OD Applications</h1>
+                            <p>Track your On-Duty application status</p>
+                        </div>
+                        <button class="btn-primary" onclick="openModal('apply-od-modal')">
+                            <i class="fas fa-plus"></i> Apply for OD
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="filter-row">
+                            <div class="search-box" style="flex:1;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="my-od-search" placeholder="Search OD applications...">
+                            </div>
+                            <select class="filter-select" id="my-od-status-filter">
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="admin-approved">Admin Approved</option>
+                                <option value="hod-approved">HOD Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Event Name</th>
+                                        <th>Type</th>
+                                        <th>OD Date</th>
+                                        <th>Admin Status</th>
+                                        <th>HOD Status</th>
+                                        <th>Applied</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="my-od-applications-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======== MY REGISTRATIONS ======== -->
+                <section class="content-section" id="registrations-section">
+                    <div class="page-header">
+                        <div>
+                            <h1>My Registrations</h1>
+                            <p>All your event registrations in one place</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="filter-row">
+                            <div class="search-box" style="flex:1;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="reg-search" placeholder="Search registrations...">
+                            </div>
+                            <select class="filter-select" id="reg-status-filter">
+                                <option value="">All Status</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="waiting">Waiting List</option>
+                            </select>
+                            <select class="filter-select" id="reg-type-filter">
+                                <option value="">All Types</option>
+                                <option value="inter-college">Inter-College</option>
+                                <option value="intra-college">Intra-College</option>
+                            </select>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Event Name</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Payment</th>
+                                        <th>Attendance</th>
+                                        <th>Registered</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="my-registrations-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======== PERFORMANCE MONITORING ======== -->
+                <section class="content-section" id="performance-section">
+                    <div class="page-header">
+                        <div>
+                            <h1>Performance Insights</h1>
+                            <p>Analyze your event participation, attendance rates, and verification status</p>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Stats Grid -->
+                    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+                        <div class="stat-card" style="position: relative; overflow: hidden;">
+                            <div class="stat-card-top">
+                                <span class="stat-label">Attendance Rate</span>
+                                <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                            </div>
+                            <div class="stat-value" id="perf-attendance-rate">100%</div>
+                            <div class="stat-sub" id="perf-attendance-sub">0 of 0 events attended</div>
+                            <div
+                                style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 12px; overflow: hidden;">
+                                <div id="perf-attendance-progress"
+                                    style="background: var(--green); height: 100%; width: 0%; transition: width 0.6s ease;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="position: relative; overflow: hidden;">
+                            <div class="stat-card-top">
+                                <span class="stat-label">Certificate Approval</span>
+                                <div class="stat-icon purple"><i class="fas fa-stamp"></i></div>
+                            </div>
+                            <div class="stat-value" id="perf-cert-rate">0%</div>
+                            <div class="stat-sub" id="perf-cert-sub">0 of 0 verified</div>
+                            <div
+                                style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 12px; overflow: hidden;">
+                                <div id="perf-cert-progress"
+                                    style="background: var(--accent); height: 100%; width: 0%; transition: width 0.6s ease;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="position: relative; overflow: hidden;">
+                            <div class="stat-card-top">
+                                <span class="stat-label">OD Approval Rate</span>
+                                <div class="stat-icon orange"><i class="fas fa-file-circle-check"></i></div>
+                            </div>
+                            <div class="stat-value" id="perf-od-rate">0%</div>
+                            <div class="stat-sub" id="perf-od-sub">0 of 0 approved</div>
+                            <div
+                                style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 12px; overflow: hidden;">
+                                <div id="perf-od-progress"
+                                    style="background: var(--orange); height: 100%; width: 0%; transition: width 0.6s ease;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="position: relative; overflow: hidden;">
+                            <div class="stat-card-top">
+                                <span class="stat-label">Engagement Score</span>
+                                <div class="stat-icon blue"><i class="fas fa-bolt"></i></div>
+                            </div>
+                            <div class="stat-value" id="perf-engagement-score">0/100</div>
+                            <div class="stat-sub" id="perf-engagement-level">Level: Explorer</div>
+                            <div
+                                style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 12px; overflow: hidden;">
+                                <div id="perf-engagement-progress"
+                                    style="background: var(--accent); height: 100%; width: 0%; transition: width 0.6s ease;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="perf-charts-grid">
+                        <div class="card" style="margin-bottom: 0;">
+                            <h3><i class="fas fa-chart-pie"
+                                    style="color: var(--green); margin-right: 8px;"></i>Attendance Status</h3>
+                            <div
+                                style="position: relative; height: 220px; display: flex; align-items: center; justify-content: center;">
+                                <canvas id="attendanceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="card" style="margin-bottom: 0;">
+                            <h3><i class="fas fa-chart-bar"
+                                    style="color: var(--accent); margin-right: 8px;"></i>Certificates Status</h3>
+                            <div
+                                style="position: relative; height: 220px; display: flex; align-items: center; justify-content: center;">
+                                <canvas id="certChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="card" style="margin-bottom: 0;">
+                            <h3><i class="fas fa-chart-pie" style="color: var(--orange); margin-right: 8px;"></i>OD
+                                Application Status</h3>
+                            <div
+                                style="position: relative; height: 220px; display: flex; align-items: center; justify-content: center;">
+                                <canvas id="odChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Achievements Section -->
+                    <div class="card">
+                        <h3><i class="fas fa-trophy" style="color: var(--orange); margin-right: 8px;"></i>Achievements &
+                            Badges</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-mid); margin-bottom: 20px; margin-top: -10px;">
+                            Earn and unlock academic and event participation badges as you use the portal.
+                        </p>
+                        <div class="badge-grid" id="achievements-container">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======== FOCUS GAMES SECTION ======== -->
+                <section class="content-section" id="games-section">
+                    <div class="page-header">
+                        <div>
+                            <h1>Focus & Brain Gym</h1>
+                            <p>Improve your coding speeds, typing accuracy, and mental focus with these challenges</p>
+                        </div>
+                    </div>
+
+                    <!-- Game Tab Buttons Card -->
+                    <div class="game-tabs-card">
+                        <button class="game-tab-btn active" id="btn-tab-typing" onclick="switchGameTab('typing')">
+                            <i class="fas fa-keyboard"></i> Coding & Typing Speed
+                        </button>
+                        <button class="game-tab-btn" id="btn-tab-memory" onclick="switchGameTab('memory')">
+                            <i class="fas fa-brain"></i> Tech Memory Match
+                        </button>
+                    </div>
+
+                    <!-- 1. Typing Game Container -->
+                    <div id="typing-game-container">
+                        <div class="game-card">
+                            <div class="typing-header-row">
+                                <h3><i class="fas fa-keyboard" style="color:var(--accent); margin-right:8px;"></i>Typing
+                                    Challenge</h3>
+                                <div class="typing-difficulty">
+                                    <button class="difficulty-chip active"
+                                        onclick="selectTypingCategory('code', this)">JS/Code Snippets</button>
+                                    <button class="difficulty-chip"
+                                        onclick="selectTypingCategory('quotes', this)">Academic Quotes</button>
+                                </div>
+                            </div>
+
+                            <div style="position: relative;">
+                                <div class="typing-focus-prompt" id="typing-focus-prompt" onclick="focusTypingInput()">
+                                    <i class="fas fa-hand-pointer"></i> Click here to start typing!
+                                </div>
+                                <div class="text-display-box" id="text-display" onclick="focusTypingInput()">
+                                    <!-- Characters will be dynamically rendered here -->
+                                </div>
+                            </div>
+
+                            <input type="text" class="typing-input-area" id="typing-input" autocomplete="off" autofocus>
+
+                            <div class="game-stats-grid">
+                                <div class="game-stat-card">
+                                    <div class="game-stat-title">Speed</div>
+                                    <div class="game-stat-num" id="type-wpm">0 <span
+                                            style="font-size:0.9rem; font-weight:500;">WPM</span></div>
+                                </div>
+                                <div class="game-stat-card">
+                                    <div class="game-stat-title">Accuracy</div>
+                                    <div class="game-stat-num" id="type-accuracy">100<span
+                                            style="font-size:0.9rem; font-weight:500;">%</span></div>
+                                </div>
+                                <div class="game-stat-card">
+                                    <div class="game-stat-title">Time Left</div>
+                                    <div class="game-stat-num" id="type-time">60s</div>
+                                </div>
+                                <div class="game-stat-card">
+                                    <div class="game-stat-title">Mistakes</div>
+                                    <div class="game-stat-num" id="type-mistakes" style="color: var(--red);">0</div>
+                                </div>
+                            </div>
+
+                            <div class="game-actions-row">
+                                <button class="btn-primary" onclick="resetTypingGame()"><i
+                                        class="fas fa-rotate-left"></i> Reset & Shuffle</button>
+                                <div
+                                    style="display: flex; align-items: center; margin-left: auto; font-size: 0.85rem; color: var(--text-mid); font-weight: 600;">
+                                    <i class="fas fa-trophy" style="color: var(--orange); margin-right: 6px;"></i> High
+                                    Score: <span id="type-highscore"
+                                        style="color: var(--text-dark); margin-left: 4px;">0 WPM</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Memory Game Container -->
+                    <div id="memory-game-container" style="display: none;">
+                        <div class="game-card">
+                            <div class="memory-game-controls">
+                                <h3><i class="fas fa-brain" style="color:var(--teal); margin-right:8px;"></i>Memory Grid
+                                    Challenge</h3>
+                                <div style="display: flex; gap: 16px; font-size: 0.9rem; font-weight: 700;">
+                                    <div>Flips: <span id="memory-flips" style="color:var(--accent);">0</span></div>
+                                    <div>Timer: <span id="memory-time" style="color:var(--teal);">0s</span></div>
+                                </div>
+                            </div>
+
+                            <div class="memory-grid" id="memory-grid">
+                                <!-- Cards generated dynamically -->
+                            </div>
+
+                            <div class="game-actions-row" style="align-items: center;">
+                                <button class="btn-primary" onclick="startMemoryGame()"><i class="fas fa-play"></i>
+                                    Start / Reset Board</button>
+                                <div
+                                    style="display: flex; align-items: center; margin-left: auto; font-size: 0.85rem; color: var(--text-mid); font-weight: 600; gap: 12px;">
+                                    <span><i class="fas fa-trophy" style="color: var(--orange);"></i> Best Time: <span
+                                            id="memory-best-time" style="color: var(--text-dark);">--s</span></span>
+                                    <span>Best Flips: <span id="memory-best-flips"
+                                            style="color: var(--text-dark);">--</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div><!-- /main-content -->
+        </div><!-- /main-wrapper -->
+    </div><!-- /portal-wrapper -->
+
+    <!-- =================== MODALS =================== -->
+
+    <!-- Upload Certificate -->
+    <div id="upload-certificate-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('upload-certificate-modal')">×</span>
+            <h2><i class="fas fa-upload" style="color:var(--accent);"></i> Upload Certificate</h2>
+            <form id="certificate-form">
+                <div class="form-group"><label>Event Name *</label><input type="text" id="cert-event-name" required>
+                </div>
+                <div class="form-group"><label>College Name *</label><input type="text" id="cert-college" required>
+                </div>
+                <div class="form-group">
+                    <label>Achievement *</label>
+                    <select id="cert-achievement" required>
+                        <option value="">Select Achievement</option>
+                        <option value="First Prize">First Prize</option>
+                        <option value="Second Prize">Second Prize</option>
+                        <option value="Third Prize">Third Prize</option>
+                        <option value="Participation">Participation</option>
+                        <option value="Winner">Winner</option>
+                        <option value="Runner-up">Runner-up</option>
+                        <option value="Best Performer">Best Performer</option>
+                        <option value="Best Paper">Best Paper</option>
+                        <option value="Special Recognition">Special Recognition</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Event Date *</label><input type="date" id="cert-date" required></div>
+                <div class="form-group"><label>Remarks (Optional)</label><textarea id="cert-remarks"
+                        placeholder="Any additional info..."></textarea></div>
+                <div class="form-group">
+                    <label>Upload Certificate (PDF/Image) *</label>
+                    <input type="file" id="cert-file" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <small style="color:var(--text-mid);font-size:0.78rem;">Max 5MB — PDF, JPG, PNG</small>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary"><i class="fas fa-upload"></i> Upload Certificate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Apply for OD -->
+    <div id="apply-od-modal" class="modal">
+        <div class="modal-content" style="max-width:680px;">
+            <span class="close" onclick="closeModal('apply-od-modal')">×</span>
+            <h2><i class="fas fa-file-signature" style="color:var(--accent);"></i> Apply for On-Duty</h2>
+            <form id="od-form">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div class="form-group"><label>Event Name *</label><input type="text" id="od-event-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Event Type *</label>
+                        <select id="od-event-type" required>
+                            <option value="">Select Type</option>
+                            <option value="Inter-College">Inter-College</option>
+                            <option value="Intra-College">Intra-College</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>OD Date *</label><input type="date" id="od-date" required></div>
+                    <div class="form-group">
+                        <label>Time Duration *</label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="time" id="od-from-time" required style="flex:1;">
+                            <span style="color:var(--text-mid);font-size:0.8rem;">to</span>
+                            <input type="time" id="od-to-time" required style="flex:1;">
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Venue *</label><input type="text" id="od-venue" required></div>
+                    <div class="form-group"><label>Organizer *</label><input type="text" id="od-organizer" required>
+                    </div>
+                    <div class="form-group"><label>Contact Person *</label><input type="text" id="od-contact-person"
+                            required></div>
+                    <div class="form-group"><label>Contact Number *</label><input type="tel" id="od-contact-number"
+                            pattern="[0-9]{10}" placeholder="10-digit number" required></div>
+                </div>
+                <div class="form-group"><label>Reason for OD *</label><textarea id="od-reason" rows="3" required
+                        placeholder="Explain why you need OD..."></textarea></div>
+                <div class="form-group">
+                    <label>Supporting Document (Optional)</label>
+                    <input type="file" id="od-supporting-doc" accept=".pdf,.jpg,.jpeg,.png">
+                    <small style="color:var(--text-mid);font-size:0.78rem;">Upload invitation letter or proof</small>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Submit
+                        Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Registration -->
+    <div id="event-registration-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('event-registration-modal')">×</span>
+            <h2 id="event-registration-title"><i class="fas fa-calendar-plus" style="color:var(--accent);"></i> Event
+                Registration</h2>
+            <div id="event-registration-details"></div>
+            <div id="registration-form-container"></div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content" style="max-width:500px;">
+            <span class="close" onclick="closeModal('payment-modal')">×</span>
+            <h2><i class="fas fa-credit-card" style="color:var(--accent);"></i> Complete Payment</h2>
+            <div id="payment-details"></div>
+            <div class="payment-methods">
+                <div class="payment-method" onclick="selectPaymentMethod('upi', this)">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>UPI</h4>
+                    <p>Pay using UPI</p>
+                </div>
+                <div class="payment-method" onclick="selectPaymentMethod('card', this)">
+                    <i class="fas fa-credit-card"></i>
+                    <h4>Card</h4>
+                    <p>Credit/Debit</p>
+                </div>
+                <div class="payment-method" onclick="selectPaymentMethod('netbanking', this)">
+                    <i class="fas fa-university"></i>
+                    <h4>Net Banking</h4>
+                    <p>Internet Banking</p>
+                </div>
+            </div>
+            <div id="payment-form-container"></div>
+        </div>
+    </div>
+
+    <!-- Certificate Details -->
+    <div id="certificate-details-modal" class="modal">
+        <div class="modal-content" style="max-width:800px;">
+            <span class="close" onclick="closeModal('certificate-details-modal')">×</span>
+            <h2><i class="fas fa-certificate" style="color:var(--accent);"></i> Certificate Details</h2>
+            <div id="certificate-details-content"></div>
+            <div class="certificate-preview" id="certificate-file-preview"></div>
+        </div>
+    </div>
+
+    <!-- OD Details -->
+    <div id="od-details-modal" class="modal">
+        <div class="modal-content" style="max-width:800px;">
+            <span class="close" onclick="closeModal('od-details-modal')">×</span>
+            <h2><i class="fas fa-file-signature" style="color:var(--accent);"></i> OD Application Details</h2>
+            <div class="od-flow" id="od-status-flow">
+                <div class="flow-step" id="step-applied"><i class="fas fa-file-upload"></i><span>Applied</span></div>
+                <div class="flow-step" id="step-admin-review"><i class="fas fa-user-shield"></i><span>Admin
+                        Review</span></div>
+                <div class="flow-step" id="step-hod-review"><i class="fas fa-user-tie"></i><span>HOD Review</span></div>
+                <div class="flow-step" id="step-completed"><i class="fas fa-check-circle"></i><span>Completed</span>
+                </div>
+            </div>
+            <div id="od-details-content"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        // ====================== GLOBAL DATA ======================
+        let currentStudent = null;
+        let selectedEvent = null;
+        let selectedPaymentMethod = null;
+
+        // ====================== AUTH TAB SWITCHER ======================
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('panel-' + tab).classList.add('active');
+        }
+
+        // ====================== DATA ACCESS LAYER ======================
+        // All data operations now use MongoDB API - no localStorage for application data
+        async function getStudents() { return await apiGetStudents(); }
+        async function getEvents() { return await apiGetEvents(); }
+        async function getRegistrations() { return await apiGetRegistrations(); }
+        async function getAdminCertificates() { return await apiGetCertificates(); }
+        async function getODApplications() { return await apiGetODApplications(); }
+        async function getStudentNotifications(regNo) { return await apiGetStudentNotifications(regNo); }
+
+        async function addStudentNotification(regNumber, title, message) {
+            await apiAddStudentNotification({
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                registerNumber: regNumber, title, message,
+                timestamp: new Date().toISOString(), read: false
+            });
+        }
+
+        // ====================== INITIALIZATION ======================
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (typeof initAPI === 'function') {
+                await initAPI();
+            }
+            currentStudent = JSON.parse(localStorage.getItem('currentStudent')) || null;
+            await checkLogin();
+            
+            // Socket.IO real-time sync – replaces manual polling
+            const socket = io('http://localhost:5000', { transports: ['websocket', 'polling'] });
+            socket.on('connect', () => console.log('🔌 Student portal connected to Socket.IO'));
+            
+            socket.on('event_change', () => { if(document.querySelector('.nav-tab[data-section="events"]')?.classList.contains('active')) loadEvents(); });
+            socket.on('registration_change', () => { if(document.querySelector('.nav-tab[data-section="registrations"]')?.classList.contains('active')) loadMyRegistrations(); });
+            socket.on('certificate_change', () => { if(document.querySelector('.nav-tab[data-section="certificates"]')?.classList.contains('active')) loadMyCertificates(); });
+            socket.on('od_change', () => { if(document.querySelector('.nav-tab[data-section="od-applications"]')?.classList.contains('active')) loadMyODApplications(); });
+            socket.on('notification_change', async (data) => {
+                if (data.registerNumber === currentStudent?.registerNumber) {
+                    await checkNotifications();
+                }
+            });
+            socket.on('student_change', async (data) => {
+                if (data.registerNumber === currentStudent?.registerNumber) {
+                    // Update local user data implicitly if performance tab active
+                    if(document.querySelector('.nav-tab[data-section="performance"]')?.classList.contains('active')) loadPerformance();
+                }
+            });
+        });
+
+        async function checkLogin() {
+            try {
+                const students = await getStudents();
+                const exists = currentStudent && students.some(s => s.registerNumber === currentStudent.registerNumber);
+                if (!currentStudent || !exists) {
+                    showAuthPage();
+                } else {
+                    showPortal();
+                    loadDashboard();
+                    setupNavigation();
+                    setupEventListeners();
+                }
+            } catch (e) {
+                console.error('Error checking login:', e);
+                showAuthPage();
+            }
+        }
+
+        function showAuthPage() {
+            document.getElementById('auth-page').style.display = 'flex';
+            document.getElementById('portal-wrapper').style.display = 'none';
+            // Show register tab by default for first-time users
+            switchAuthTab('register');
+            document.getElementById('login-form').removeEventListener('submit', handleLogin);
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            document.getElementById('register-form').removeEventListener('submit', handleRegister);
+            document.getElementById('register-form').addEventListener('submit', handleRegister);
+        }
+
+        function showPortal() {
+            document.getElementById('auth-page').style.display = 'none';
+            document.getElementById('portal-wrapper').style.display = 'block';
+            // Update header info
+            if (currentStudent) {
+                const initials = (currentStudent.name || 'S').charAt(0).toUpperCase();
+                document.getElementById('student-name').textContent = currentStudent.name;
+                document.getElementById('header-avatar').textContent = initials;
+                document.getElementById('sidebar-avatar').textContent = initials;
+                document.getElementById('sidebar-student-name').textContent = currentStudent.name;
+                document.getElementById('sidebar-student-dept').textContent = getDepartmentName(currentStudent.department);
+                document.getElementById('dashboard-greeting').textContent = `Welcome, ${currentStudent.name.split(' ')[0]}! 👋`;
+            }
+        }
+
+        // Legacy aliases for modal show/hide (kept for compat)
+        function showLoginPage() { showAuthPage(); }
+        function showMainPage() { showPortal(); }
+        function showRegisterForm() { switchAuthTab('register'); }
+        function showLoginForm() { switchAuthTab('login'); }
+
+        // ====================== AUTHENTICATION ======================
+        async function handleLogin(e) {
+            e.preventDefault();
+            const regNo = document.getElementById('register-number').value.trim();
+            const password = document.getElementById('password').value;
+            if (!regNo || !password) { showToast('Please fill all fields', true); return; }
+
+            try {
+                const student = await apiLoginStudent(regNo, password);
+                currentStudent = { ...student };
+                localStorage.setItem('currentStudent', JSON.stringify(currentStudent));
+                await addStudentNotification(regNo, 'Login Successful', 'Welcome back, ' + student.name + '!');
+                showToast('Welcome back, ' + student.name + '!');
+                showPortal(); setupNavigation(); setupEventListeners(); loadDashboard();
+            } catch (err) {
+                showToast(err.message || 'Login failed', true);
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const regNo = document.getElementById('reg-register-number').value.trim();
+            const college = document.getElementById('reg-college').value.trim();
+            const department = document.getElementById('reg-department').value;
+            const year = document.getElementById('reg-year').value;
+            const semester = document.getElementById('reg-semester').value;
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+
+            if (!name || !regNo || !college || !department || !year || !semester || !password || !confirmPassword) {
+                showToast('Please fill all fields', true); return;
+            }
+            if (password !== confirmPassword) { showToast('Passwords do not match', true); return; }
+            if (password.length < 6) { showToast('Password must be at least 6 characters', true); return; }
+
+            const newStudent = {
+                id: 'stu-' + Date.now(), name, registerNumber: regNo,
+                college, department, year, semester, password,
+                joinedAt: new Date().toISOString(), lastLogin: new Date().toISOString()
+            };
+
+            try {
+                await apiRegisterStudent(newStudent);
+                currentStudent = { ...newStudent };
+                localStorage.setItem('currentStudent', JSON.stringify(currentStudent));
+                await addStudentNotification(regNo, 'Profile Created!', 'Welcome to SPCET Student Portal, ' + name + '!');
+
+                showToast('Profile created! Welcome to the portal, ' + name + ' 🎉');
+                showPortal(); setupNavigation(); setupEventListeners(); loadDashboard();
+            } catch (err) {
+                showToast(err.message || 'Profile creation failed', true);
+            }
+        }
+
+        function logout() {
+            Swal.fire({
+                title: 'Logout?', text: 'Are you sure you want to logout?',
+                icon: 'question', showCancelButton: true,
+                confirmButtonText: 'Yes, logout!', cancelButtonText: 'Cancel',
+                confirmButtonColor: '#ef4444'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('currentStudent');
+                    currentStudent = null;
+                    document.getElementById('login-form').reset();
+                    document.getElementById('register-form').reset();
+                    showAuthPage();
+                }
+            });
+        }
+
+        // ====================== SYNC FROM ADMIN/HOD ======================
+        async function syncFromAdmin() {
+            if (!currentStudent) return;
+            const regNo = currentStudent.registerNumber;
+            let hasUpdates = false;
+
+            const adminODs = await getODApplications();
+            const myODs = adminODs.filter(o => o.registerNumber === regNo);
+            myODs.forEach(adminOD => {
+                if (adminOD.adminStatus === 'approved' && !adminOD._adminNotifSent) {
+                    adminOD._adminNotifSent = true;
+                    addStudentNotification(regNo, 'OD Approved by Admin',
+                        `Your OD for "${adminOD.eventName}" on ${formatDate(adminOD.odDate)} has been approved by admin and forwarded to HOD.`);
+                    hasUpdates = true;
+                }
+                if (adminOD.adminStatus === 'rejected' && !adminOD._adminRejectNotifSent) {
+                    adminOD._adminRejectNotifSent = true;
+                    addStudentNotification(regNo, 'OD Rejected by Admin',
+                        `Your OD for "${adminOD.eventName}" was rejected by admin.${adminOD.adminRemarks ? ' Remarks: ' + adminOD.adminRemarks : ''}`);
+                    hasUpdates = true;
+                }
+                if (adminOD.hodStatus === 'approved' && !adminOD._hodApproveNotifSent) {
+                    adminOD._hodApproveNotifSent = true;
+                    addStudentNotification(regNo, 'OD Approved by HOD',
+                        `Your OD for "${adminOD.eventName}" has been approved by HOD.${adminOD.hodRemarks ? ' Remarks: ' + adminOD.hodRemarks : ''}`);
+                    hasUpdates = true;
+                }
+                if (adminOD.hodStatus === 'rejected' && !adminOD._hodRejectNotifSent) {
+                    adminOD._hodRejectNotifSent = true;
+                    addStudentNotification(regNo, 'OD Rejected by HOD',
+                        `Your OD for "${adminOD.eventName}" was rejected by HOD.${adminOD.hodRemarks ? ' Remarks: ' + adminOD.hodRemarks : ''}`);
+                    hasUpdates = true;
+                }
+            });
+
+            const adminCerts = await getAdminCertificates();
+            const myCerts = adminCerts.filter(c => c.studentRegisterNo === regNo);
+            myCerts.forEach(adminCert => {
+                if (adminCert.status === 'verified' && !adminCert._verifyNotifSent) {
+                    adminCert._verifyNotifSent = true;
+                    addStudentNotification(regNo, 'Certificate Verified',
+                        `Your certificate for "${adminCert.eventName}" has been verified.${adminCert.adminRemarks ? ' Remarks: ' + adminCert.adminRemarks : ''}`);
+                    hasUpdates = true;
+                }
+                if (adminCert.status === 'rejected' && !adminCert._rejectNotifSent) {
+                    adminCert._rejectNotifSent = true;
+                    addStudentNotification(regNo, 'Certificate Rejected',
+                        `Your certificate for "${adminCert.eventName}" was rejected.${adminCert.adminRemarks ? ' Remarks: ' + adminCert.adminRemarks : ''}`);
+                    hasUpdates = true;
+                }
+            });
+            if (hasUpdates) { loadDashboard(); }
+        }
+
+        // ====================== NAVIGATION ======================
+        function setupNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.removeEventListener('click', handleNavClick);
+                tab.addEventListener('click', handleNavClick);
+            });
+        }
+
+        function handleNavClick() {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const section = this.dataset.section;
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`${section}-section`).classList.add('active');
+            switch (section) {
+                case 'dashboard': loadDashboard(); break;
+                case 'events': loadEvents(); break;
+                case 'certificates': loadMyCertificates(); break;
+                case 'od-applications': loadMyODApplications(); break;
+                case 'registrations': loadMyRegistrations(); break;
+                case 'performance': loadPerformance(); break;
+                case 'games': initGames(); break;
+            }
+        }
+
+        // ====================== EVENT LISTENERS ======================
+        function setupEventListeners() {
+            document.getElementById('certificate-form').removeEventListener('submit', handleCertificateUpload);
+            document.getElementById('certificate-form').addEventListener('submit', handleCertificateUpload);
+            document.getElementById('od-form').removeEventListener('submit', handleODApplication);
+            document.getElementById('od-form').addEventListener('submit', handleODApplication);
+
+            document.getElementById('event-search').addEventListener('input', filterEvents);
+            document.getElementById('event-type-filter').addEventListener('change', filterEvents);
+            document.getElementById('event-dept-filter').addEventListener('change', filterEvents);
+            document.getElementById('event-payment-filter').addEventListener('change', filterEvents);
+            document.getElementById('my-cert-search').addEventListener('input', filterMyCertificates);
+            document.getElementById('my-cert-status-filter').addEventListener('change', filterMyCertificates);
+            document.getElementById('my-od-search').addEventListener('input', filterMyODs);
+            document.getElementById('my-od-status-filter').addEventListener('change', filterMyODs);
+            document.getElementById('reg-search').addEventListener('input', filterMyRegistrations);
+            document.getElementById('reg-status-filter').addEventListener('change', filterMyRegistrations);
+            document.getElementById('reg-type-filter').addEventListener('change', filterMyRegistrations);
+
+            window.removeEventListener('click', handleModalBackdrop);
+            window.addEventListener('click', handleModalBackdrop);
+        }
+
+        function handleModalBackdrop(e) {
+            if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+        }
+
+        // ====================== DASHBOARD ======================
+        async function loadDashboard() {
+            if (!currentStudent) return;
+            const regNo = currentStudent.registerNumber;
+            const allRegs = await getRegistrations();
+            const allCerts = await getAdminCertificates();
+            const allODs = await getODApplications();
+            
+            const regs = allRegs.filter(r => r.registerNumber === regNo);
+            const certs = allCerts.filter(c => c.studentRegisterNo === regNo);
+            const ods = allODs.filter(o => o.registerNumber === regNo);
+            const verifiedCerts = certs.filter(c => c.status === 'verified');
+
+            document.getElementById('stat-registrations').textContent = regs.length;
+            document.getElementById('stat-certificates').textContent = certs.length;
+            document.getElementById('stat-od-apps').textContent = ods.length;
+            document.getElementById('stat-verified').textContent = verifiedCerts.length;
+
+            await loadNotifications();
+            loadUpcomingEvents();
+        }
+
+        async function loadNotifications() {
+            if (!currentStudent) return;
+            const container = document.getElementById('notifications-list');
+            const notifs = await getStudentNotifications(currentStudent.registerNumber);
+            if (notifs.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-light);text-align:center;padding:20px;"><i class="fas fa-bell-slash"></i> No notifications yet</p>`;
+                return;
+            }
+            notifs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            let html = '';
+            notifs.slice(0, 8).forEach(n => {
+                html += `<div class="notification-item ${n.read ? '' : 'unread'}">
+                    <div>
+                        <strong>${n.title}</strong>
+                        <p>${n.message}</p>
+                    </div>
+                    <span class="notif-time">${formatDateTime(n.timestamp)}</span>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        async function loadUpcomingEvents() {
+            const container = document.getElementById('upcoming-events-list');
+            const events = await getEvents();
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const upcoming = events.filter(e => {
+                const d = new Date(e.date); d.setHours(0, 0, 0, 0);
+                return d >= today;
+            }).sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 3);
+
+            if (upcoming.length === 0) {
+                container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-light);grid-column:1/-1;">
+                    <i class="fas fa-calendar-times fa-3x" style="display:block;margin-bottom:12px;opacity:0.3;"></i>No upcoming events</div>`;
+                return;
+            }
+            container.innerHTML = upcoming.map(e => buildEventCard(e)).join('');
+        }
+
+        // ====================== EVENTS ======================
+        async function loadEvents(filteredData) {
+            const container = document.getElementById('events-list');
+            const events = filteredData || await getEvents();
+            if (events.length === 0) {
+                container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-light);grid-column:1/-1;">
+                    <i class="fas fa-calendar-times fa-3x" style="display:block;margin-bottom:12px;opacity:0.3;"></i>No events available</div>`;
+                return;
+            }
+            events.sort((a, b) => new Date(a.date) - new Date(b.date));
+            const eventCards = await Promise.all(events.map(e => buildEventCard(e)));
+            container.innerHTML = eventCards.join('');
+            await populateDepartmentFilter();
+        }
+
+        async function buildEventCard(event) {
+            const allRegs = await getRegistrations();
+            const regs = allRegs.filter(r => r.eventId === event.id);
+            const confirmedCount = regs.filter(r => r.status === 'Confirmed').length;
+            const isRegistered = currentStudent && regs.some(r => r.registerNumber === currentStudent.registerNumber);
+            const isFull = confirmedCount >= event.registrationLimit;
+            const typeClass = event.type === 'inter-college' ? 'inter-college' : 'intra-college';
+            const typeText = event.type === 'inter-college' ? 'Inter-College' : 'Intra-College';
+            const isPaid = event.type === 'inter-college' && event.payment && event.payment.amount > 0;
+
+            return `<div class="event-card">
+                <div class="event-header ${typeClass}">
+                    <h3>${escapeHtml(event.name)}</h3>
+                    <p>${formatDate(event.date)} at ${event.time || 'TBD'}</p>
+                    <span class="status-badge" style="background:rgba(255,255,255,0.2);color:white;margin-top:6px;font-size:0.72rem;">${typeText}</span>
+                </div>
+                <div class="event-body">
+                    <div class="event-detail"><i class="fas fa-university"></i><span>${escapeHtml(event.college || 'N/A')}</span></div>
+                    <div class="event-detail"><i class="fas fa-map-marker-alt"></i><span>${escapeHtml(event.location || 'N/A')}</span></div>
+                    <div class="event-detail"><i class="fas fa-building"></i><span>${getDepartmentName(event.department)}</span></div>
+                    <div class="event-detail"><i class="fas fa-users"></i><span>${confirmedCount}/${event.registrationLimit} spots filled</span></div>
+                    ${isPaid ? `<div class="event-detail"><i class="fas fa-rupee-sign"></i><span>Fee: ₹${event.payment.amount}</span></div>` :
+                    `<div class="event-detail"><i class="fas fa-tag"></i><span>Free Event</span></div>`}
+                </div>
+                <div class="event-actions">
+                    ${isRegistered ? `<button class="btn btn-view" style="background:#d1fae5;color:#065f46;"><i class="fas fa-check"></i> Registered</button>` :
+                    isFull ? `<button class="btn" style="background:#fee2e2;color:#991b1b;"><i class="fas fa-times"></i> Full</button>` :
+                        `<button class="btn btn-register" onclick="registerForEvent('${event.id}')"><i class="fas fa-plus"></i> Register</button>`}
+                    <button class="btn btn-view" onclick="viewEventDetails('${event.id}')"><i class="fas fa-eye"></i> Details</button>
+                </div>
+            </div>`;
+        }
+
+        async function filterEvents() {
+            const search = document.getElementById('event-search').value.toLowerCase();
+            const type = document.getElementById('event-type-filter').value;
+            const dept = document.getElementById('event-dept-filter').value;
+            const payment = document.getElementById('event-payment-filter').value;
+            const events = await getEvents();
+            const filtered = events.filter(e => {
+                const matchSearch = !search || (e.name || '').toLowerCase().includes(search) || (e.college || '').toLowerCase().includes(search);
+                const matchType = !type || e.type === type;
+                const matchDept = !dept || e.department === dept;
+                const isPaid = e.type === 'inter-college' && e.payment && e.payment.amount > 0;
+                const matchPayment = !payment || (payment === 'free' && !isPaid) || (payment === 'paid' && isPaid);
+                return matchSearch && matchType && matchDept && matchPayment;
+            });
+            loadEvents(filtered);
+        }
+
+        async function populateDepartmentFilter() {
+            const filter = document.getElementById('event-dept-filter');
+            const events = await getEvents();
+            const depts = [...new Set(events.map(e => e.department).filter(Boolean))];
+            const current = filter.value;
+            filter.innerHTML = '<option value="">All Departments</option>';
+            depts.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d; opt.textContent = getDepartmentName(d);
+                filter.appendChild(opt);
+            });
+            filter.value = current;
+        }
+
+        async function viewEventDetails(eventId) {
+            const events = await getEvents();
+            const event = events.find(e => e.id === eventId);
+            if (!event) return;
+            const allRegs = await getRegistrations();
+            const regs = allRegs.filter(r => r.eventId === eventId);
+            const confirmed = regs.filter(r => r.status === 'Confirmed').length;
+            Swal.fire({
+                title: escapeHtml(event.name),
+                html: `<div style="text-align:left;font-size:0.9rem;line-height:1.8;">
+                    <p><strong>College:</strong> ${escapeHtml(event.college || 'N/A')}</p>
+                    <p><strong>Location:</strong> ${escapeHtml(event.location || 'N/A')}</p>
+                    <p><strong>Department:</strong> ${getDepartmentName(event.department)}</p>
+                    <p><strong>Date:</strong> ${formatDate(event.date)}</p>
+                    <p><strong>Time:</strong> ${event.time || 'TBD'}</p>
+                    <p><strong>Registered:</strong> ${confirmed}/${event.registrationLimit}</p>
+                    ${event.payment && event.payment.amount ? `<p><strong>Fee:</strong> ₹${event.payment.amount}</p>` : ''}
+                    <hr style="margin:12px 0;border:none;border-top:1px solid #e2e8f0;">
+                    <p style="color:#64748b;">${escapeHtml(event.description || 'No description available.')}</p>
+                </div>`,
+                width: 520, showCloseButton: true, showConfirmButton: false
+            });
+        }
+
+        // ====================== EVENT REGISTRATION ======================
+        async function registerForEvent(eventId) {
+            if (!currentStudent) { showToast('Please login first', true); return; }
+            const events = await getEvents();
+            const event = events.find(e => e.id === eventId);
+            if (!event) return;
+            const allRegs = await getRegistrations();
+            const regs = allRegs.filter(r => r.eventId === eventId);
+            if (regs.find(r => r.registerNumber === currentStudent.registerNumber)) {
+                showToast('You are already registered!'); return;
+            }
+            const confirmedCount = regs.filter(r => r.status === 'Confirmed').length;
+            if (confirmedCount >= event.registrationLimit) {
+                Swal.fire({
+                    title: 'Event Full', text: 'Join the waiting list?', icon: 'warning',
+                    showCancelButton: true, confirmButtonText: 'Join Waiting List', confirmButtonColor: '#f59e0b'
+                }).then(r => { if (r.isConfirmed) processRegistration(eventId, true, false); });
+                return;
+            }
+            selectedEvent = event;
+            showRegistrationModal();
+        }
+
+        function showRegistrationModal() {
+            if (!selectedEvent) return;
+            const e = selectedEvent;
+            const isPaid = e.type === 'inter-college' && e.payment && e.payment.amount > 0;
+            document.getElementById('event-registration-title').innerHTML = `<i class="fas fa-calendar-plus" style="color:var(--accent);"></i> Register for ${escapeHtml(e.name)}`;
+            document.getElementById('event-registration-details').innerHTML = `
+                <div style="background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:16px;border:1px solid var(--border);">
+                    <p><strong>College:</strong> ${escapeHtml(e.college)}</p>
+                    <p><strong>Date:</strong> ${formatDate(e.date)} at ${e.time || 'TBD'}</p>
+                    <p><strong>Location:</strong> ${escapeHtml(e.location)}</p>
+                    ${isPaid ? `<p><strong>Fee:</strong> ₹${e.payment.amount}</p>` : ''}
+                </div>`;
+            document.getElementById('registration-form-container').innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+                    <div class="form-group"><label>Name</label><input type="text" value="${escapeHtml(currentStudent.name)}" readonly style="background:#f1f5f9;"></div>
+                    <div class="form-group"><label>Register No</label><input type="text" value="${escapeHtml(currentStudent.registerNumber)}" readonly style="background:#f1f5f9;"></div>
+                    <div class="form-group"><label>Department</label><input type="text" value="${getDepartmentName(currentStudent.department)}" readonly style="background:#f1f5f9;"></div>
+                    <div class="form-group"><label>Year</label><input type="text" value="Year ${currentStudent.year}" readonly style="background:#f1f5f9;"></div>
+                </div>
+                ${isPaid ? `<p style="color:#ef4444;font-weight:600;margin-bottom:14px;font-size:0.85rem;"><i class="fas fa-exclamation-circle"></i> Payment of ₹${e.payment.amount} is required.</p>` : ''}
+                <div class="form-actions">
+                    <button class="btn-primary" onclick="processRegistration('${e.id}', false, false)">
+                        ${isPaid ? '<i class="fas fa-credit-card"></i> Proceed to Payment' : '<i class="fas fa-check"></i> Confirm Registration'}
+                    </button>
+                </div>`;
+            openModal('event-registration-modal');
+        }
+
+        async function processRegistration(eventId, isWaiting, skipPayment) {
+            const events = await getEvents();
+            const event = events.find(e => e.id === eventId);
+            if (!event) return;
+            const isPaid = event.type === 'inter-college' && event.payment && event.payment.amount > 0;
+            if (isPaid && !isWaiting && !skipPayment) {
+                closeModal('event-registration-modal');
+                selectedEvent = event; showPaymentModal(); return;
+            }
+            completeRegistration(eventId, isWaiting, isPaid && skipPayment);
+        }
+
+        function showPaymentModal() {
+            if (!selectedEvent) return;
+            document.getElementById('payment-details').innerHTML = `
+                <div style="background:#f0f9ff;padding:14px;border-radius:10px;margin-bottom:14px;border:1px solid #bfdbfe;">
+                    <p><strong>Event:</strong> ${escapeHtml(selectedEvent.name)}</p>
+                    <p><strong>Amount:</strong> <span style="color:var(--accent);font-weight:700;">₹${selectedEvent.payment.amount}</span></p>
+                </div>`;
+            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+            document.getElementById('payment-form-container').innerHTML = '';
+            selectedPaymentMethod = null;
+            openModal('payment-modal');
+        }
+
+        function selectPaymentMethod(method, el) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll('.payment-method').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            const container = document.getElementById('payment-form-container');
+            if (method === 'upi') {
+                container.innerHTML = `<div class="form-group"><label>Enter UPI ID</label><input type="text" id="upi-id" placeholder="yourname@upi"></div>
+                    <div class="form-actions"><button class="btn-primary" onclick="simulatePayment()"><i class="fas fa-rupee-sign"></i> Pay Now</button></div>`;
+            } else if (method === 'card') {
+                container.innerHTML = `<div class="form-group"><label>Card Number</label><input type="text" placeholder="1234 5678 9012 3456"></div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                        <div class="form-group"><label>Expiry</label><input type="text" placeholder="MM/YY"></div>
+                        <div class="form-group"><label>CVV</label><input type="text" placeholder="123"></div>
+                    </div>
+                    <div class="form-actions"><button class="btn-primary" onclick="simulatePayment()"><i class="fas fa-credit-card"></i> Pay Now</button></div>`;
+            } else {
+                container.innerHTML = `<div class="form-group"><label>Select Bank</label>
+                    <select class="filter-select" style="width:100%;height:auto;padding:10px;"><option>SBI</option><option>HDFC</option><option>ICICI</option><option>Axis</option></select></div>
+                    <div class="form-actions"><button class="btn-primary" onclick="simulatePayment()"><i class="fas fa-university"></i> Pay Now</button></div>`;
+            }
+        }
+
+        function simulatePayment() {
+            Swal.fire({
+                title: 'Processing Payment...', html: 'Please wait...',
+                timer: 2000, timerProgressBar: true,
+                didOpen: () => Swal.showLoading(), allowOutsideClick: false
+            }).then(() => completeRegistration(selectedEvent.id, false, true));
+        }
+
+        async function completeRegistration(eventId, isWaiting, isPaid) {
+            const events = await getEvents();
+            const event = events.find(e => e.id === eventId);
+            if (!event) return;
+            // Prevent duplicate registration for the same student and event
+            const allRegs = await getRegistrations();
+            const existing = allRegs.find(r => r.registerNumber === currentStudent.registerNumber && r.eventId === eventId);
+            if (existing) {
+                showToast('You have already registered for this event.', true);
+                // Close any open modals and reset selection
+                closeModal('event-registration-modal');
+                closeModal('payment-modal');
+                selectedEvent = null;
+                selectedPaymentMethod = null;
+                return;
+            }
+            const registration = {
+                id: 'reg-' + Date.now(),
+                eventId,
+                eventName: event.name,
+                eventType: event.type,
+                name: currentStudent.name,
+                registerNumber: currentStudent.registerNumber,
+                department: currentStudent.department,
+                year: currentStudent.year,
+                college: currentStudent.college,
+                status: isWaiting ? 'Waiting List' : 'Confirmed',
+                registeredAt: new Date().toISOString(),
+                paymentStatus: isPaid ? 'paid' : (event.payment && event.payment.amount > 0 ? 'unpaid' : 'free'),
+                paymentAmount: event.payment ? event.payment.amount : 0,
+                attendance: null
+            };
+            await apiSaveRegistration(registration);
+            await addStudentNotification(currentStudent.registerNumber, 'Registration Successful',
+                `You have been ${isWaiting ? 'added to the waiting list for' : 'registered for'} "${event.name}"`);
+            showToast(`Successfully ${isWaiting ? 'added to waiting list' : 'registered'} for "${event.name}"!`);
+            closeModal('event-registration-modal');
+            closeModal('payment-modal');
+            selectedEvent = null;
+            selectedPaymentMethod = null;
+            await loadDashboard();
+            await loadEvents();
+            await loadMyRegistrations();
+        }
+
+
+        // ====================== CERTIFICATES ======================
+        async function handleCertificateUpload(e) {
+            e.preventDefault();
+            if (!currentStudent) return;
+            const eventName = document.getElementById('cert-event-name').value.trim();
+            const college = document.getElementById('cert-college').value.trim();
+            const achievement = document.getElementById('cert-achievement').value;
+            const date = document.getElementById('cert-date').value;
+            const remarks = document.getElementById('cert-remarks').value.trim();
+            const fileInput = document.getElementById('cert-file');
+            if (!eventName || !college || !achievement || !date || !fileInput.files[0]) {
+                showToast('Please fill all required fields', true); return;
+            }
+            const file = fileInput.files[0];
+            if (file.size > 5 * 1024 * 1024) { showToast('File size must be < 5MB', true); return; }
+            const reader = new FileReader();
+            reader.onload = async function (ev) {
+                const certificate = {
+                    id: 'cert-' + Date.now(), studentName: currentStudent.name,
+                    studentRegisterNo: currentStudent.registerNumber, department: currentStudent.department,
+                    year: currentStudent.year, semester: currentStudent.semester, college, eventName,
+                    achievement, date, remarks, fileName: file.name, fileType: file.type,
+                    fileData: ev.target.result, uploadedAt: new Date().toISOString(),
+                    submittedAt: new Date().toISOString(), status: 'pending', adminRemarks: '',
+                    _verifyNotifSent: false, _rejectNotifSent: false
+                };
+                try {
+                    await apiSaveCertificate(certificate);
+                    await addStudentNotification(currentStudent.registerNumber, 'Certificate Uploaded',
+                        `Certificate for "${eventName}" has been submitted and is pending verification.`);
+                    showToast('Certificate uploaded! Awaiting admin verification.');
+                    closeModal('upload-certificate-modal');
+                    document.getElementById('certificate-form').reset();
+                    await loadDashboard();
+                    await loadMyCertificates();
+                    const certTab = document.querySelector('.nav-tab[data-section="certificates"]');
+                    if (certTab) certTab.click();
+                } catch (err) { showToast('Failed to save. File may be too large.', true); }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function loadMyCertificates(filteredData) {
+            if (!currentStudent) return;
+            const table = document.getElementById('my-certificates-table');
+            const allCerts = await getAdminCertificates();
+            const myCerts = allCerts.filter(c => c.studentRegisterNo === currentStudent.registerNumber);
+            const certs = filteredData || myCerts;
+            if (certs.length === 0) {
+                table.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-light);">
+                    <i class="fas fa-file-alt fa-3x" style="display:block;margin-bottom:12px;opacity:0.3;"></i>No certificates uploaded yet</td></tr>`;
+                return;
+            }
+            certs.sort((a, b) => new Date(b.uploadedAt || b.submittedAt) - new Date(a.uploadedAt || a.submittedAt));
+            table.innerHTML = certs.map(cert => `<tr>
+                <td><strong>${escapeHtml(cert.eventName)}</strong></td>
+                <td>${escapeHtml(cert.achievement)}</td>
+                <td>${formatDate(cert.date)}</td>
+                <td><span class="status-badge status-${cert.status}">${capitalize(cert.status)}</span></td>
+                <td>${cert.adminRemarks ? escapeHtml(cert.adminRemarks) : '<span style="color:var(--text-light);">—</span>'}</td>
+                <td>${formatDateTime(cert.uploadedAt || cert.submittedAt)}</td>
+                <td><button class="btn btn-view" onclick="viewMyCertificate('${cert.id}')"><i class="fas fa-eye"></i> View</button></td>
+            </tr>`).join('');
+        }
+
+        async function filterMyCertificates() {
+            if (!currentStudent) return;
+            const search = document.getElementById('my-cert-search').value.toLowerCase();
+            const status = document.getElementById('my-cert-status-filter').value;
+            const allCerts = await getAdminCertificates();
+            const filtered = allCerts.filter(c => {
+                if (c.studentRegisterNo !== currentStudent.registerNumber) return false;
+                return (!search || (c.eventName || '').toLowerCase().includes(search) || (c.achievement || '').toLowerCase().includes(search))
+                    && (!status || c.status === status);
+            });
+            loadMyCertificates(filtered);
+        }
+
+        async function viewMyCertificate(certId) {
+            const allCerts = await getAdminCertificates();
+            const cert = allCerts.find(c => c.id === certId);
+            if (!cert) { showToast('Certificate not found', true); return; }
+            document.getElementById('certificate-details-content').innerHTML = `
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:16px 0;">
+                    <div class="detail-group"><label>Event Name</label><p>${escapeHtml(cert.eventName)}</p></div>
+                    <div class="detail-group"><label>Achievement</label><p>${escapeHtml(cert.achievement)}</p></div>
+                    <div class="detail-group"><label>College</label><p>${escapeHtml(cert.college)}</p></div>
+                    <div class="detail-group"><label>Date</label><p>${formatDate(cert.date)}</p></div>
+                    <div class="detail-group"><label>Status</label><p><span class="status-badge status-${cert.status}">${capitalize(cert.status)}</span></p></div>
+                    <div class="detail-group"><label>Submitted</label><p>${formatDateTime(cert.uploadedAt || cert.submittedAt)}</p></div>
+                    <div class="detail-group" style="grid-column:span 2;"><label>Your Remarks</label><p>${cert.remarks || 'No remarks'}</p></div>
+                    ${cert.adminRemarks ? `<div class="detail-group" style="grid-column:span 2;"><label>Admin Remarks</label><p style="font-weight:600;">${escapeHtml(cert.adminRemarks)}</p></div>` : ''}
+                </div>`;
+            const preview = document.getElementById('certificate-file-preview');
+            preview.innerHTML = '';
+            if (cert.fileData) {
+                if (cert.fileType && cert.fileType.startsWith('image/')) {
+                    preview.innerHTML = `<img src="${cert.fileData}" alt="${escapeHtml(cert.fileName)}" style="max-width:100%;border-radius:8px;">`;
+                } else {
+                    preview.innerHTML = `<iframe src="${cert.fileData}" style="width:100%;height:400px;border:none;border-radius:8px;"></iframe>`;
+                }
+            }
+            openModal('certificate-details-modal');
+        }
+
+        // ====================== OD APPLICATIONS ======================
+        async function handleODApplication(e) {
+            e.preventDefault();
+            if (!currentStudent) return;
+            const eventName = document.getElementById('od-event-name').value.trim();
+            const eventType = document.getElementById('od-event-type').value;
+            const odDate = document.getElementById('od-date').value;
+            const fromTime = document.getElementById('od-from-time').value;
+            const toTime = document.getElementById('od-to-time').value;
+            const venue = document.getElementById('od-venue').value.trim();
+            const organizer = document.getElementById('od-organizer').value.trim();
+            const contactPerson = document.getElementById('od-contact-person').value.trim();
+            const contactNumber = document.getElementById('od-contact-number').value.trim();
+            const reason = document.getElementById('od-reason').value.trim();
+            if (!eventName || !eventType || !odDate || !fromTime || !toTime || !venue || !organizer || !contactPerson || !contactNumber || !reason) {
+                showToast('Please fill all required fields', true); return;
+            }
+            if (!/^[0-9]{10}$/.test(contactNumber)) { showToast('Please enter a valid 10-digit phone number', true); return; }
+
+            const application = {
+                id: 'od-' + Date.now(), studentName: currentStudent.name,
+                registerNumber: currentStudent.registerNumber, department: currentStudent.department,
+                year: currentStudent.year, semester: currentStudent.semester, college: currentStudent.college,
+                type: eventType, odDate, fromTime, toTime, eventName, venue, organizer,
+                contactPerson, contactNumber, reason, status: 'pending',
+                adminStatus: 'pending', hodStatus: 'pending', adminRemarks: '', hodRemarks: '',
+                submittedAt: new Date().toISOString(),
+                _adminNotifSent: false, _adminRejectNotifSent: false, _hodApproveNotifSent: false, _hodRejectNotifSent: false
+            };
+
+            const fileInput = document.getElementById('od-supporting-doc');
+            if (fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = async ev => {
+                    application.supportingDoc = { fileName: file.name, fileType: file.type, fileData: ev.target.result };
+                    await saveODApplication(application);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                await saveODApplication(application);
+            }
+        }
+
+        async function saveODApplication(app) {
+            await apiSubmitODApplication(app);
+            await addStudentNotification(currentStudent.registerNumber, 'OD Application Submitted',
+                `Your OD for "${app.eventName}" on ${formatDate(app.odDate)} has been submitted.`);
+            showToast('OD application submitted successfully!');
+            closeModal('apply-od-modal');
+            document.getElementById('od-form').reset();
+            await loadDashboard();
+            await loadMyODApplications();
+        }
+
+        async function loadMyODApplications(filteredData) {
+            if (!currentStudent) return;
+            const table = document.getElementById('my-od-applications-table');
+            const allODs = await getODApplications();
+            const myODs = allODs.filter(o => o.registerNumber === currentStudent.registerNumber);
+            const ods = filteredData || myODs;
+            if (ods.length === 0) {
+                table.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-light);">
+                    <i class="fas fa-file-alt fa-3x" style="display:block;margin-bottom:12px;opacity:0.3;"></i>No OD applications yet</td></tr>`;
+                return;
+            }
+            ods.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+            table.innerHTML = ods.map(app => {
+                const hodStatus = app.hodStatus || 'pending';
+                return `<tr>
+                    <td><strong>${escapeHtml(app.eventName)}</strong></td>
+                    <td>${escapeHtml(app.type)}</td>
+                    <td>${formatDate(app.odDate)}</td>
+                    <td><span class="status-badge status-${app.adminStatus}">${capitalize(app.adminStatus)}</span></td>
+                    <td><span class="status-badge status-${hodStatus}">${capitalize(hodStatus)}</span></td>
+                    <td>${formatDateTime(app.submittedAt)}</td>
+                    <td><button class="btn btn-view" onclick="viewMyODApplication('${app.id}')"><i class="fas fa-eye"></i> View</button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function filterMyODs() {
+            if (!currentStudent) return;
+            const search = document.getElementById('my-od-search').value.toLowerCase();
+            const statusFilter = document.getElementById('my-od-status-filter').value;
+            const allODs = await getODApplications();
+            const filtered = allODs.filter(app => {
+                if (app.registerNumber !== currentStudent.registerNumber) return false;
+                const matchSearch = !search || (app.eventName || '').toLowerCase().includes(search);
+                let currentStatus = app.adminStatus;
+                if (app.adminStatus === 'approved' && (!app.hodStatus || app.hodStatus === 'pending')) currentStatus = 'admin-approved';
+                else if (app.hodStatus === 'approved') currentStatus = 'hod-approved';
+                else if (app.adminStatus === 'rejected' || app.hodStatus === 'rejected') currentStatus = 'rejected';
+                return matchSearch && (!statusFilter || currentStatus === statusFilter);
+            });
+            loadMyODApplications(filtered);
+        }
+
+        async function viewMyODApplication(appId) {
+            const allODs = await getODApplications();
+            const app = allODs.find(a => a.id === appId);
+            if (!app) { showToast('Application not found', true); return; }
+            updateODStatusFlow(app);
+            document.getElementById('od-details-content').innerHTML = `
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:16px 0;">
+                    <div class="detail-group"><label>Event Name</label><p>${escapeHtml(app.eventName)}</p></div>
+                    <div class="detail-group"><label>Event Type</label><p>${escapeHtml(app.type)}</p></div>
+                    <div class="detail-group"><label>OD Date</label><p>${formatDate(app.odDate)}</p></div>
+                    <div class="detail-group"><label>Time Duration</label><p>${app.fromTime} – ${app.toTime}</p></div>
+                    <div class="detail-group"><label>Venue</label><p>${escapeHtml(app.venue)}</p></div>
+                    <div class="detail-group"><label>Organizer</label><p>${escapeHtml(app.organizer)}</p></div>
+                    <div class="detail-group"><label>Contact Person</label><p>${escapeHtml(app.contactPerson)}</p></div>
+                    <div class="detail-group"><label>Contact Number</label><p>${escapeHtml(app.contactNumber)}</p></div>
+                    <div class="detail-group" style="grid-column:span 2;"><label>Reason for OD</label><p>${escapeHtml(app.reason)}</p></div>
+                    <div class="detail-group"><label>Admin Status</label><p><span class="status-badge status-${app.adminStatus}">${capitalize(app.adminStatus)}</span></p></div>
+                    <div class="detail-group"><label>HOD Status</label><p><span class="status-badge status-${app.hodStatus || 'pending'}">${capitalize(app.hodStatus || 'pending')}</span></p></div>
+                    ${app.adminRemarks ? `<div class="detail-group" style="grid-column:span 2;"><label>Admin Remarks</label><p style="font-weight:600;">${escapeHtml(app.adminRemarks)}</p></div>` : ''}
+                    ${app.hodRemarks ? `<div class="detail-group" style="grid-column:span 2;"><label>HOD Remarks</label><p style="font-weight:600;">${escapeHtml(app.hodRemarks)}</p></div>` : ''}
+                </div>`;
+            openModal('od-details-modal');
+        }
+
+        function updateODStatusFlow(app) {
+            ['step-applied', 'step-admin-review', 'step-hod-review', 'step-completed'].forEach(id => {
+                document.getElementById(id).classList.remove('active', 'completed', 'rejected');
+            });
+            document.getElementById('step-applied').classList.add('completed');
+            if (app.adminStatus === 'pending') {
+                document.getElementById('step-admin-review').classList.add('active');
+            } else if (app.adminStatus === 'approved') {
+                document.getElementById('step-admin-review').classList.add('completed');
+                if (!app.hodStatus || app.hodStatus === 'pending') {
+                    document.getElementById('step-hod-review').classList.add('active');
+                } else if (app.hodStatus === 'approved') {
+                    document.getElementById('step-hod-review').classList.add('completed');
+                    document.getElementById('step-completed').classList.add('completed');
+                } else {
+                    document.getElementById('step-hod-review').classList.add('rejected');
+                }
+            } else {
+                document.getElementById('step-admin-review').classList.add('rejected');
+            }
+        }
+
+        // ====================== MY REGISTRATIONS ======================
+        async function loadMyRegistrations(filteredData) {
+            if (!currentStudent) return;
+            const table = document.getElementById('my-registrations-table');
+            const allRegs = await getRegistrations();
+            const myRegs = allRegs.filter(r => r.registerNumber === currentStudent.registerNumber);
+            const regs = filteredData || myRegs;
+            if (regs.length === 0) {
+                table.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-light);">
+                    <i class="fas fa-list-alt fa-3x" style="display:block;margin-bottom:12px;opacity:0.3;"></i>No registrations yet</td></tr>`;
+                return;
+            }
+            // Remove duplicate registrations based on unique registration id
+            const uniqueRegsMap = new Map();
+            regs.forEach(r => {
+                if (r.id) {
+                    uniqueRegsMap.set(r.id, r);
+                } else {
+                    // Fallback: use combination of eventId and registerNumber as key
+                    const key = `${r.eventId}_${r.registerNumber}`;
+                    uniqueRegsMap.set(key, r);
+                }
+            });
+            const uniqueRegs = Array.from(uniqueRegsMap.values());
+            uniqueRegs.sort((a, b) => new Date(b.registeredAt) - new Date(a.registeredAt));
+            const events = await getEvents();
+            table.innerHTML = uniqueRegs.map(reg => {
+                const event = events.find(e => e.id === reg.eventId);
+                const eventDate = event ? formatDate(event.date) : 'N/A';
+                const statusClass = reg.status === 'Confirmed' ? 'confirmed' : 'waiting';
+                const payClass = reg.paymentStatus === 'paid' ? 'paid' : reg.paymentStatus === 'unpaid' ? 'unpaid' : 'free';
+                const payText = reg.paymentStatus === 'paid' ? 'Paid' : reg.paymentStatus === 'unpaid' ? 'Unpaid' : 'Free';
+                const isIntra = reg.eventType === 'intra-college';
+                let attendanceHtml = '—';
+                if (isIntra) {
+                    if (reg.attendance === 'present') attendanceHtml = '<span class="status-badge status-present">Present</span>';
+                    else if (reg.attendance === 'absent') attendanceHtml = '<span class="status-badge status-absent">Absent</span>';
+                    else attendanceHtml = `<button class="btn btn-verify" onclick="markAttendance('${reg.eventId}')"><i class="fas fa-qrcode"></i> Mark</button>`;
+                }
+                return `<tr>
+                    <td><strong>${escapeHtml(reg.eventName)}</strong></td>
+                    <td>${escapeHtml(reg.eventType || 'N/A')}</td>
+                    <td>${eventDate}</td>
+                    <td><span class="status-badge status-${statusClass}">${reg.status}</span></td>
+                    <td><span class="status-badge status-${payClass}">${payText}</span></td>
+                    <td>${attendanceHtml}</td>
+                    <td>${formatDateTime(reg.registeredAt)}</td>
+                    <td><div class="action-buttons">
+                        <button class="btn btn-view" onclick="viewEventDetails('${reg.eventId}')"><i class="fas fa-eye"></i> View</button>
+                        ${reg.paymentStatus === 'unpaid' && reg.eventType === 'inter-college' ? `<button class="btn btn-pay" onclick="payForRegistration('${reg.id}')"><i class="fas fa-rupee-sign"></i> Pay</button>` : ''}
+                    </div></td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function filterMyRegistrations() {
+            if (!currentStudent) return;
+            const search = document.getElementById('reg-search').value.toLowerCase();
+            const statusFilter = document.getElementById('reg-status-filter').value;
+            const typeFilter = document.getElementById('reg-type-filter').value;
+            const allRegs = await getRegistrations();
+            const filtered = allRegs.filter(reg => {
+                if (reg.registerNumber !== currentStudent.registerNumber) return false;
+                return (!search || (reg.eventName || '').toLowerCase().includes(search))
+                    && (!statusFilter || (statusFilter === 'confirmed' ? reg.status === 'Confirmed' : reg.status === 'Waiting List'))
+                    && (!typeFilter || reg.eventType === typeFilter);
+            });
+            loadMyRegistrations(filtered);
+        }
+
+        async function payForRegistration(regId) {
+            const allRegs = await getRegistrations();
+            const reg = allRegs.find(r => r.id === regId);
+            if (!reg) return;
+            const events = await getEvents();
+            const event = events.find(e => e.id === reg.eventId);
+            if (!event) return;
+            selectedEvent = event; showPaymentModal();
+        }
+
+        async function markAttendance(eventId) {
+            if (!currentStudent) return;
+            Swal.fire({
+                title: 'Mark Attendance', html: '<p style="color:#64748b;">Simulating QR code scan...</p>',
+                timer: 2000, timerProgressBar: true, didOpen: () => Swal.showLoading(), allowOutsideClick: false
+            }).then(async () => {
+                const allRegs = await getRegistrations();
+                const idx = allRegs.findIndex(r => r.eventId === eventId && r.registerNumber === currentStudent.registerNumber);
+                if (idx !== -1) {
+                    allRegs[idx].attendance = 'present';
+                    allRegs[idx].attendanceMarkedAt = new Date().toISOString();
+                    await apiUpdateRegistration(allRegs[idx].id, allRegs[idx]);
+                    await addStudentNotification(currentStudent.registerNumber, 'Attendance Marked',
+                        `Your attendance has been marked for "${allRegs[idx].eventName}"`);
+                    showToast('Attendance marked successfully!');
+                    await loadMyRegistrations();
+                    await loadDashboard();
+                }
+            });
+        }
+
+        // ====================== PERFORMANCE MONITORING ======================
+        async function loadPerformance() {
+            if (!currentStudent) return;
+            const regNo = currentStudent.registerNumber;
+
+            // 1. Data Retrieval
+            const allRegs = await getRegistrations();
+            const allCerts = await getAdminCertificates();
+            const allODs = await getODApplications();
+            const regs = allRegs.filter(r => r.registerNumber === regNo);
+            const certs = allCerts.filter(c => c.studentRegisterNo === regNo);
+            const ods = allODs.filter(o => o.registerNumber === regNo);
+
+            // 2. Calculations
+            // Attendance Rate
+            const presentCount = regs.filter(r => r.attendance === 'present').length;
+            const absentCount = regs.filter(r => r.attendance === 'absent').length;
+            const unmarkedCount = regs.filter(r => r.attendance === null || r.attendance === undefined).length;
+            const totalAttendanceEvents = presentCount + absentCount;
+            const attendanceRate = totalAttendanceEvents > 0 ? Math.round((presentCount / totalAttendanceEvents) * 100) : 100;
+
+            // Certificate Verification Rate
+            const totalCerts = certs.length;
+            const verifiedCerts = certs.filter(c => c.status === 'verified').length;
+            const rejectedCerts = certs.filter(c => c.status === 'rejected').length;
+            const pendingCerts = certs.filter(c => c.status === 'pending').length;
+            const certSuccessRate = totalCerts > 0 ? Math.round((verifiedCerts / totalCerts) * 100) : 0;
+
+            // OD Approval Rate
+            const totalODs = ods.length;
+            const approvedODs = ods.filter(o => o.hodStatus === 'approved').length;
+            const rejectedODs = ods.filter(o => o.adminStatus === 'rejected' || o.hodStatus === 'rejected').length;
+            const pendingODs = totalODs - (approvedODs + rejectedODs);
+            const odSuccessRate = totalODs > 0 ? Math.round((approvedODs / totalODs) * 100) : 0;
+
+            // Engagement Score
+            const regPoints = Math.min(regs.length * 10, 40);
+            const certPoints = Math.min(verifiedCerts * 15, 30);
+            const attPoints = Math.round((attendanceRate / 100) * 30);
+            const engagementScore = Math.min(regPoints + certPoints + attPoints, 100);
+
+            let engagementLevel = 'Explorer';
+            if (engagementScore > 80) engagementLevel = 'Elite Scholar 🏆';
+            else if (engagementScore > 50) engagementLevel = 'Achiever 🌟';
+            else if (engagementScore > 20) engagementLevel = 'Contributor ⚡';
+
+            // 3. Populate KPI summary cards & progress bars
+            document.getElementById('perf-attendance-rate').textContent = `${attendanceRate}%`;
+            document.getElementById('perf-attendance-sub').textContent = `${presentCount} of ${totalAttendanceEvents} events attended`;
+            document.getElementById('perf-attendance-progress').style.width = `${attendanceRate}%`;
+
+            document.getElementById('perf-cert-rate').textContent = `${certSuccessRate}%`;
+            document.getElementById('perf-cert-sub').textContent = `${verifiedCerts} of ${totalCerts} verified`;
+            document.getElementById('perf-cert-progress').style.width = `${certSuccessRate}%`;
+
+            document.getElementById('perf-od-rate').textContent = `${odSuccessRate}%`;
+            document.getElementById('perf-od-sub').textContent = `${approvedODs} of ${totalODs} approved`;
+            document.getElementById('perf-od-progress').style.width = `${odSuccessRate}%`;
+
+            document.getElementById('perf-engagement-score').textContent = `${engagementScore}/100`;
+            document.getElementById('perf-engagement-level').textContent = `Level: ${engagementLevel}`;
+            document.getElementById('perf-engagement-progress').style.width = `${engagementScore}%`;
+
+            // 4. Load Charts
+            renderPerformanceCharts(presentCount, absentCount, unmarkedCount, verifiedCerts, rejectedCerts, pendingCerts, approvedODs, rejectedODs, pendingODs);
+
+            // 5. Load Gamified Achievements/Badges
+            renderAchievements(regs.length, presentCount, attendanceRate, verifiedCerts, approvedODs, engagementScore);
+        }
+
+        function renderPerformanceCharts(present, absent, unmarked, verifiedCerts, rejectedCerts, pendingCerts, approvedODs, rejectedODs, pendingODs) {
+            // Destroy existing charts to prevent rendering errors
+            if (window.attendanceChartInstance) window.attendanceChartInstance.destroy();
+            if (window.certChartInstance) window.certChartInstance.destroy();
+            if (window.odChartInstance) window.odChartInstance.destroy();
+
+            // Attendance Chart (Doughnut)
+            const ctxAtt = document.getElementById('attendanceChart').getContext('2d');
+            window.attendanceChartInstance = new Chart(ctxAtt, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Present', 'Absent', 'Pending/Unmarked'],
+                    datasets: [{
+                        data: [present, absent, unmarked],
+                        backgroundColor: ['#10b981', '#ef4444', '#94a3b8'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { family: 'Inter', size: 11 } }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // Certificate Chart (Bar)
+            const ctxCert = document.getElementById('certChart').getContext('2d');
+            window.certChartInstance = new Chart(ctxCert, {
+                type: 'bar',
+                data: {
+                    labels: ['Verified', 'Pending', 'Rejected'],
+                    datasets: [{
+                        label: 'Certificates',
+                        data: [verifiedCerts, pendingCerts, rejectedCerts],
+                        backgroundColor: ['#4f7df3', '#f59e0b', '#ef4444'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+
+            // OD Application Chart (Doughnut)
+            const ctxOD = document.getElementById('odChart').getContext('2d');
+            window.odChartInstance = new Chart(ctxOD, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Approved', 'Pending', 'Rejected'],
+                    datasets: [{
+                        data: [approvedODs, pendingODs, rejectedODs],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { family: 'Inter', size: 11 } }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        function renderAchievements(totalRegs, presentCount, attendanceRate, verifiedCerts, approvedODs, engagementScore) {
+            const container = document.getElementById('achievements-container');
+
+            const badges = [
+                {
+                    id: 'active_participator',
+                    title: 'Active Participator',
+                    desc: 'Register for 3 or more events on the portal.',
+                    icon: 'fa-rocket',
+                    color: 'blue',
+                    unlocked: totalRegs >= 3,
+                    statusText: totalRegs >= 3 ? 'Unlocked' : `${totalRegs}/3 Registered`
+                },
+                {
+                    id: 'perfect_attendance',
+                    title: 'Perfect Attendance',
+                    desc: 'Maintain a 100% attendance rate (min 1 event).',
+                    icon: 'fa-user-check',
+                    color: 'gold',
+                    unlocked: presentCount >= 1 && attendanceRate === 100,
+                    statusText: (presentCount >= 1 && attendanceRate === 100) ? 'Unlocked' : (presentCount === 0 ? 'No attended events yet' : `${attendanceRate}% Rate`)
+                },
+                {
+                    id: 'certified_scholar',
+                    title: 'Certified Scholar',
+                    desc: 'Get 2 or more uploaded certificates verified.',
+                    icon: 'fa-award',
+                    color: 'purple',
+                    unlocked: verifiedCerts >= 2,
+                    statusText: verifiedCerts >= 2 ? 'Unlocked' : `${verifiedCerts}/2 Verified`
+                },
+                {
+                    id: 'od_approved',
+                    title: 'Approved On-Duty',
+                    desc: 'Submit at least 1 OD application that gets HOD approved.',
+                    icon: 'fa-file-circle-check',
+                    color: 'bronze',
+                    unlocked: approvedODs >= 1,
+                    statusText: approvedODs >= 1 ? 'Unlocked' : '0/1 Approved'
+                },
+                {
+                    id: 'superstar',
+                    title: 'Portal Superstar',
+                    desc: 'Reach an engagement score of 80 or higher.',
+                    icon: 'fa-trophy',
+                    color: 'gold',
+                    unlocked: engagementScore >= 80,
+                    statusText: engagementScore >= 80 ? 'Unlocked' : `${engagementScore}/80 Score`
+                }
+            ];
+
+            let html = '';
+            badges.forEach(badge => {
+                const cardClass = badge.unlocked ? 'badge-card unlocked' : 'badge-card locked';
+                const statusClass = badge.unlocked ? 'badge-status unlocked' : 'badge-status locked';
+                html += `
+                    <div class="${cardClass}">
+                        <div class="badge-icon-wrap ${badge.color}">
+                            <i class="fas ${badge.icon}"></i>
+                        </div>
+                        <div class="badge-title">${badge.title}</div>
+                        <div class="badge-desc">${badge.desc}</div>
+                        <span class="${statusClass}">${badge.statusText}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // ====================== UTILITY FUNCTIONS ======================
+        function getDepartmentName(code) {
+            const map = {
+                'CSE': 'Computer Science', 'IT': 'Information Technology', 'AIDS': 'AI & Data Science',
+                'ECE': 'Electronics & Communication', 'EEE': 'Electrical & Electronics',
+                'MECH': 'Mechanical', 'CIVIL': 'Civil', 'CHEM': 'Chemical', 'BIOTECH': 'Biotechnology'
+            };
+            return map[code] || code || 'N/A';
+        }
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const d = new Date(dateString);
+                if (isNaN(d.getTime())) return 'Invalid Date';
+                return d.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+            } catch (e) { return 'Invalid Date'; }
+        }
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return 'N/A';
+            try {
+                const d = new Date(dateTimeString);
+                if (isNaN(d.getTime())) return 'Invalid Date';
+                const now = new Date();
+                const mins = Math.floor((now - d) / 60000), hours = Math.floor((now - d) / 3600000), days = Math.floor((now - d) / 86400000);
+                if (mins < 1) return 'Just now';
+                if (mins < 60) return `${mins}m ago`;
+                if (hours < 24) return `${hours}h ago`;
+                if (days < 7) return `${days}d ago`;
+                return d.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } catch (e) { return 'Invalid Date'; }
+        }
+        function capitalize(str) { if (!str) return 'N/A'; return str.charAt(0).toUpperCase() + str.slice(1); }
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
+        }
+        function openModal(id) { document.getElementById(id).style.display = 'block'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function showToast(message, isError) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '');
+            toast.querySelector('i').className = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+    </script>
+
+    <!-- ========================= AI CHATBOT ========================= -->
+    <div id="chatbot-container">
+        <div id="chatbot-window">
+            <div class="chatbot-header">
+                <i class="fas fa-robot"></i>
+                <span>Student AI Assistant</span>
+                <i class="fas fa-times chatbot-close" onclick="toggleChatbot()"></i>
+            </div>
+            <div class="chatbot-messages" id="chatbot-messages">
+                <div class="chat-msg bot">
+                    Hello! I'm the SPCET AI Assistant. How can I help you today?
+                    <div class="chatbot-suggestions">
+                        <div class="suggestion-chip" onclick="sendSuggestion('How to apply for OD?')">How to apply for
+                            OD?</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('Where to find events?')">Where to find
+                            events?</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('How to upload certificates?')">Upload
+                            certificates</div>
+                    </div>
+                </div>
+                <div class="typing-indicator" id="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="chat-input-field" placeholder="Ask a question..."
+                    onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <button id="chatbot-toggle" onclick="toggleChatbot()">
+            <i class="fas fa-comment-dots"></i>
+        </button>
+    </div>
+
+    <script>
+        // AI Chatbot Logic
+        function toggleChatbot() {
+            const chatWindow = document.getElementById('chatbot-window');
+            chatWindow.classList.toggle('open');
+            if (chatWindow.classList.contains('open')) {
+                document.getElementById('chat-input-field').focus();
+            }
+        }
+
+        function handleChatKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        function sendSuggestion(text) {
+            document.getElementById('chat-input-field').value = text;
+            sendChatMessage();
+        }
+
+        function sendChatMessage() {
+            const inputField = document.getElementById('chat-input-field');
+            const text = inputField.value.trim();
+            if (!text) return;
+
+            // Add user message
+            addMessage(text, 'user');
+            inputField.value = '';
+
+            // Show typing indicator
+            const typingIndicator = document.getElementById('typing-indicator');
+            const messagesContainer = document.getElementById('chatbot-messages');
+            messagesContainer.appendChild(typingIndicator); // Move to bottom
+            typingIndicator.classList.add('active');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Simulate AI thinking and response
+            setTimeout(() => {
+                typingIndicator.classList.remove('active');
+                const response = getBotResponse(text.toLowerCase());
+                addMessage(response, 'bot');
+            }, 1000 + Math.random() * 1000);
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatbot-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-msg ${sender}`;
+            msgDiv.innerHTML = text;
+            messagesContainer.insertBefore(msgDiv, document.getElementById('typing-indicator'));
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function getBotResponse(query) {
+            if (query.includes('od') || query.includes('on duty') || query.includes('leave')) {
+                return "To apply for an OD, click on the 'Apply for OD' quick action on your dashboard. Fill in the event details, dates, and attach your brochure.";
+            } else if (query.includes('event') || query.includes('register')) {
+                return "You can find all upcoming events in the 'Browse Events' section. Click 'View Details' on any event to register.";
+            } else if (query.includes('certificate') || query.includes('upload')) {
+                return "Upload your certificates by clicking the 'Upload Certificate' button on your dashboard. Admin will verify them shortly.";
+            } else if (query.includes('payment') || query.includes('pay') || query.includes('fee')) {
+                return "For paid events, you can pay via UPI or Card through the 'My Registrations' tab after registering.";
+            } else if (query.includes('attendance')) {
+                return "For intra-college events, your attendance is marked via a QR code scan. Go to 'My Registrations' and click 'Mark' on the event day.";
+            } else if (query.includes('hello') || query.includes('hi') || query.includes('hey')) {
+                return "Hello there! How can I assist you with the Student Portal today?";
+            } else if (query.includes('thank')) {
+                return "You're very welcome! Let me know if you need anything else.";
+            } else {
+                return "I'm not quite sure about that. Try asking about OD applications, event registrations, or certificate uploads!";
+            }
+        }
+
+        // ====================== FOCUS GAMES LOGIC ======================
+        let currentCategory = 'code';
+        let typingTimer = null;
+        let typingTimeLeft = 60;
+        let typingIsRunning = false;
+        let typingErrors = 0;
+        let typingTotalChars = 0;
+        let typingTextVal = "";
+        let characterIndex = 0;
+
+        const codeSnippets = [
+            "const unique = (arr) => [...new Set(arr)];",
+            "fetch(url).then(res => res.json()).then(data => console.log(data));",
+            "const bubbleSort = arr => { for(let i=0; i<arr.length; i++) { } };",
+            "document.addEventListener('DOMContentLoaded', () => { initApp(); });",
+            "const express = require('express'); const app = express(); app.listen(3000);",
+            "git commit -m 'feat: implement authentication and security headers'",
+            "const db = await mongoose.connect(process.env.MONGODB_URI);",
+            "flex-direction: column; justify-content: center; align-items: center;",
+            "const server = http.createServer((req, res) => { res.end('Hello'); });",
+            "const hashed = await bcrypt.hash(password, saltRounds);"
+        ];
+
+        const quotes = [
+            "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+            "The only way to do great work is to love what you do.",
+            "Live as if you were to die tomorrow. Learn as if you were to live forever.",
+            "Information technology and business are becoming inextricably interwoven.",
+            "Code is like humor. When you have to explain it, it's bad.",
+            "Your attitude, not your aptitude, will determine your altitude.",
+            "Technology is best when it brings people together.",
+            "The beautiful thing about learning is that no one can take it away from you."
+        ];
+
+        function initGames() {
+            switchGameTab('typing');
+            loadTypingHighScore();
+            loadMemoryHighScore();
+        }
+
+        function switchGameTab(game) {
+            document.getElementById('btn-tab-typing').classList.toggle('active', game === 'typing');
+            document.getElementById('btn-tab-memory').classList.toggle('active', game === 'memory');
+
+            document.getElementById('typing-game-container').style.display = game === 'typing' ? 'block' : 'none';
+            document.getElementById('memory-game-container').style.display = game === 'memory' ? 'block' : 'none';
+
+            if (game === 'typing') {
+                resetTypingGame();
+            } else {
+                startMemoryGame();
+            }
+        }
+
+        /* 1. Typing Game Functions */
+        function loadTypingHighScore() {
+            if (!currentStudent) return;
+            const highscore = currentStudent.typingHighScore || 0;
+            document.getElementById('type-highscore').textContent = `${highscore} WPM`;
+        }
+
+        async function saveTypingHighScore(wpm) {
+            if (!currentStudent) return false;
+            const current = currentStudent.typingHighScore || 0;
+            if (wpm > current) {
+                currentStudent.typingHighScore = wpm;
+                localStorage.setItem('currentStudent', JSON.stringify(currentStudent));
+                await apiUpdateStudent(currentStudent.registerNumber, { typingHighScore: wpm });
+                loadTypingHighScore();
+                return true;
+            }
+            return false;
+        }
+
+        function selectTypingCategory(category, buttonEl) {
+            currentCategory = category;
+            document.querySelectorAll('.difficulty-chip').forEach(btn => btn.classList.remove('active'));
+            buttonEl.classList.add('active');
+            resetTypingGame();
+        }
+
+        function resetTypingGame() {
+            clearInterval(typingTimer);
+            typingTimer = null;
+            typingTimeLeft = 60;
+            typingIsRunning = false;
+            typingErrors = 0;
+            typingTotalChars = 0;
+            characterIndex = 0;
+
+            document.getElementById('type-wpm').innerHTML = '0 <span style="font-size:0.9rem; font-weight:500;">WPM</span>';
+            document.getElementById('type-accuracy').innerHTML = '100<span style="font-size:0.9rem; font-weight:500;">%</span>';
+            document.getElementById('type-time').textContent = '60s';
+            document.getElementById('type-mistakes').textContent = '0';
+            document.getElementById('typing-input').value = '';
+            document.getElementById('typing-focus-prompt').style.opacity = '1';
+            document.getElementById('typing-focus-prompt').style.pointerEvents = 'all';
+
+            // Pick a random text
+            const list = currentCategory === 'code' ? codeSnippets : quotes;
+            typingTextVal = list[Math.floor(Math.random() * list.length)];
+
+            // Format text-display box with individual span characters
+            const container = document.getElementById('text-display');
+            container.innerHTML = '';
+            [...typingTextVal].forEach((char, index) => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                if (index === 0) span.className = 'current';
+                container.appendChild(span);
+            });
+
+            // Remove previous typing listeners and add new ones
+            const inputField = document.getElementById('typing-input');
+            inputField.removeEventListener('input', handleTypingInput);
+            inputField.addEventListener('input', handleTypingInput);
+        }
+
+        function focusTypingInput() {
+            document.getElementById('typing-focus-prompt').style.opacity = '0';
+            document.getElementById('typing-focus-prompt').style.pointerEvents = 'none';
+            document.getElementById('typing-input').focus();
+        }
+
+        async function handleTypingInput(e) {
+            const inputField = document.getElementById('typing-input');
+            const characters = document.getElementById('text-display').querySelectorAll('span');
+            const typedVal = inputField.value;
+
+            // Start timer on first keystroke
+            if (!typingIsRunning) {
+                typingIsRunning = true;
+                typingTimer = setInterval(updateTypingTimer, 1000);
+            }
+
+            // Determine current typed characters length
+            const typedLength = typedVal.length;
+            typingErrors = 0;
+
+            characters.forEach((span, index) => {
+                const typedChar = typedVal[index];
+
+                // Clear state
+                span.classList.remove('correct', 'incorrect', 'current');
+
+                if (typedChar == null) {
+                    if (index === typedLength) {
+                        span.classList.add('current');
+                    }
+                } else if (typedChar === span.textContent) {
+                    span.classList.add('correct');
+                } else {
+                    span.classList.add('incorrect');
+                    typingErrors++;
+                }
+            });
+
+            // Update Stats
+            document.getElementById('type-mistakes').textContent = typingErrors;
+
+            // Calculate accuracy
+            if (typedLength > 0) {
+                const accuracy = Math.round(((typedLength - typingErrors) / typedLength) * 100);
+                document.getElementById('type-accuracy').innerHTML = `${Math.max(0, accuracy)}<span style="font-size:0.9rem; font-weight:500;">%</span>`;
+            } else {
+                document.getElementById('type-accuracy').innerHTML = '100<span style="font-size:0.9rem; font-weight:500;">%</span>';
+            }
+
+            // Calculate WPM
+            const timePassed = 60 - typingTimeLeft;
+            if (timePassed > 0) {
+                const wpm = Math.round((((typedLength - typingErrors) / 5) / timePassed) * 60);
+                document.getElementById('type-wpm').innerHTML = `${Math.max(0, wpm)} <span style="font-size:0.9rem; font-weight:500;">WPM</span>`;
+            }
+
+            // Check if finished
+            if (typedLength >= typingTextVal.length) {
+                clearInterval(typingTimer);
+                const finalWPM = Math.round((((typedLength - typingErrors) / 5) / (60 - typingTimeLeft)) * 60) || 0;
+                const finalAccuracy = Math.round(((typedLength - typingErrors) / typedLength) * 100) || 0;
+
+                const isNewHigh = await saveTypingHighScore(finalWPM);
+
+                Swal.fire({
+                    title: isNewHigh ? '🏆 New High Score!' : '🎉 Challenge Completed!',
+                    html: `<div style="font-size:1rem; line-height:1.6;">
+                        <p>You typed at <strong>${finalWPM} WPM</strong> with <strong>${finalAccuracy}%</strong> accuracy.</p>
+                        <p style="color:var(--text-mid); font-size:0.85rem; margin-top:8px;">Mistakes: ${typingErrors}</p>
+                    </div>`,
+                    icon: 'success',
+                    confirmButtonColor: 'var(--accent)'
+                });
+                resetTypingGame();
+            }
+        }
+
+        async function updateTypingTimer() {
+            if (typingTimeLeft > 0) {
+                typingTimeLeft--;
+                document.getElementById('type-time').textContent = `${typingTimeLeft}s`;
+
+                // Live WPM update
+                const typedLength = document.getElementById('typing-input').value.length;
+                const timePassed = 60 - typingTimeLeft;
+                if (timePassed > 0) {
+                    const wpm = Math.round((((typedLength - typingErrors) / 5) / timePassed) * 60);
+                    document.getElementById('type-wpm').innerHTML = `${Math.max(0, wpm)} <span style="font-size:0.9rem; font-weight:500;">WPM</span>`;
+                }
+            } else {
+                // Time up
+                clearInterval(typingTimer);
+                const typedLength = document.getElementById('typing-input').value.length;
+                const finalWPM = Math.round((((typedLength - typingErrors) / 5) / 60) * 60) || 0;
+                const finalAccuracy = typedLength > 0 ? Math.round(((typedLength - typingErrors) / typedLength) * 100) : 0;
+
+                await saveTypingHighScore(finalWPM);
+
+                Swal.fire({
+                    title: '⏳ Time\'s Up!',
+                    html: `You scored <strong>${finalWPM} WPM</strong> with <strong>${finalAccuracy}%</strong> accuracy.`,
+                    icon: 'info',
+                    confirmButtonColor: 'var(--accent)'
+                });
+                resetTypingGame();
+            }
+        }
+
+        /* 2. Memory Match Game Functions */
+        let memoryIcons = [
+            'fa-code', 'fa-database', 'fa-laptop-code', 'fa-server',
+            'fa-microchip', 'fa-bug', 'fa-terminal', 'fa-network-wired'
+        ];
+        let memoryCards = [];
+        let memoryTimer = null;
+        let memorySeconds = 0;
+        let memoryFlips = 0;
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard = null;
+        let secondCard = null;
+        let matchedPairs = 0;
+        let memoryIsRunning = false;
+
+        function loadMemoryHighScore() {
+            if (!currentStudent) return;
+            const bestTime = currentStudent.memoryBestTime;
+            const bestFlips = currentStudent.memoryBestFlips;
+
+            document.getElementById('memory-best-time').textContent = bestTime ? `${bestTime}s` : '--s';
+            document.getElementById('memory-best-flips').textContent = bestFlips ? bestFlips : '--';
+        }
+
+        async function saveMemoryHighScore(time, flips) {
+            if (!currentStudent) return;
+            const prevBestTime = currentStudent.memoryBestTime;
+            const prevBestFlips = currentStudent.memoryBestFlips;
+
+            let isNewBest = false;
+            let payload = {};
+
+            if (!prevBestTime || time < prevBestTime) {
+                currentStudent.memoryBestTime = time;
+                payload.memoryBestTime = time;
+                isNewBest = true;
+            }
+            if (!prevBestFlips || flips < prevBestFlips) {
+                currentStudent.memoryBestFlips = flips;
+                payload.memoryBestFlips = flips;
+                isNewBest = true;
+            }
+
+            if (isNewBest) {
+                localStorage.setItem('currentStudent', JSON.stringify(currentStudent));
+                await apiUpdateStudent(currentStudent.registerNumber, payload);
+                loadMemoryHighScore();
+            }
+        }
+
+        function startMemoryGame() {
+            resetMemoryGame();
+
+            // Build the card list
+            const cardsDeck = [...memoryIcons, ...memoryIcons];
+            // Shuffle
+            cardsDeck.sort(() => Math.random() - 0.5);
+
+            const grid = document.getElementById('memory-grid');
+            grid.innerHTML = '';
+
+            cardsDeck.forEach((icon, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.icon = icon;
+
+                card.innerHTML = `
+                    <div class="memory-card-face memory-card-front"></div>
+                    <div class="memory-card-face memory-card-back">
+                        <i class="fas ${icon}"></i>
+                    </div>
+                `;
+
+                card.addEventListener('click', flipCard);
+                grid.appendChild(card);
+            });
+        }
+
+        function resetMemoryGame() {
+            clearInterval(memoryTimer);
+            memoryTimer = null;
+            memorySeconds = 0;
+            memoryFlips = 0;
+            matchedPairs = 0;
+            hasFlippedCard = false;
+            lockBoard = false;
+            firstCard = null;
+            secondCard = null;
+            memoryIsRunning = false;
+
+            document.getElementById('memory-flips').textContent = '0';
+            document.getElementById('memory-time').textContent = '0s';
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            // Start timer on first flip
+            if (!memoryIsRunning) {
+                memoryIsRunning = true;
+                memoryTimer = setInterval(() => {
+                    memorySeconds++;
+                    document.getElementById('memory-time').textContent = `${memorySeconds}s`;
+                }, 1000);
+            }
+
+            this.classList.add('flipped');
+            memoryFlips++;
+            document.getElementById('memory-flips').textContent = memoryFlips;
+
+            if (!hasFlippedCard) {
+                // First card click
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+
+            // Second card click
+            secondCard = this;
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            const isMatch = firstCard.dataset.icon === secondCard.dataset.icon;
+            if (isMatch) {
+                disableCards();
+            } else {
+                unflipCards();
+            }
+        }
+
+        function disableCards() {
+            firstCard.classList.add('matched');
+            secondCard.classList.add('matched');
+
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+
+            matchedPairs++;
+            resetBoardVars();
+
+            // Check win condition (8 pairs matched)
+            if (matchedPairs === memoryIcons.length) {
+                clearInterval(memoryTimer);
+
+                // Delay Swal to show completion animation
+                setTimeout(() => {
+                    saveMemoryHighScore(memorySeconds, memoryFlips);
+                    Swal.fire({
+                        title: '🏆 You Win!',
+                        html: `<p>Matched all cards in <strong>${memorySeconds} seconds</strong> with <strong>${memoryFlips} flips</strong>.</p>`,
+                        icon: 'success',
+                        confirmButtonColor: 'var(--teal)'
+                    });
+                }, 600);
+            }
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                resetBoardVars();
+            }, 1000);
+        }
+
+        function resetBoardVars() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+    </script>
+</body>
+
+</html>

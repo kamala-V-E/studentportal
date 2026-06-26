@@ -1,0 +1,338 @@
+/* 🎨 PROFESSIONAL CSS FOR COLLEGE PORTAL LOGIN */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    
+    /* Elegant Indigo/Slate Palette */
+    --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    
+    --primary: #4f46e5;         /* Indigo 600 */
+    --primary-hover: #4338ca;   /* Indigo 700 */
+    --primary-light: #eeebff;   /* Indigo light tint */
+    --text-main: #0f172a;       /* Slate 900 */
+    --text-muted: #64748b;      /* Slate 500 */
+    --text-light: #94a3b8;      /* Slate 400 */
+    
+    --border-color: #e2e8f0;    /* Slate 200 */
+    --border-focus: #818cf8;    /* Indigo 400 */
+    --ring-focus: rgba(99, 102, 241, 0.15);
+    
+    --error: #ef4444;           /* Red 500 */
+    --error-bg: #fef2f2;        /* Red 50 */
+    
+    --shadow-card: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    --shadow-button: 0 4px 14px rgba(79, 70, 229, 0.3);
+    --shadow-button-hover: 0 6px 20px rgba(79, 70, 229, 0.4);
+    
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --radius-sm: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg-gradient);
+    overflow: hidden;
+    color: var(--text-main);
+}
+
+/* Glassmorphism Background Shapes */
+.bg-decorations {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.circle-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+}
+
+.circle-1 {
+    top: -10%;
+    left: 10%;
+    width: 400px;
+    height: 400px;
+    background: #4f46e5;
+}
+
+.circle-2 {
+    bottom: -10%;
+    right: 10%;
+    width: 500px;
+    height: 500px;
+    background: #06b6d4;
+}
+
+/* 🏢 MAIN LOGIN CONTAINER */
+.card-container {
+    position: relative;
+    z-index: 10;
+    width: 440px;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 40px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: fadeInScale 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* 🎓 PROFILE / BRANDING */
+.profile-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.brand-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: var(--primary-light);
+    border-radius: 50%;
+    color: var(--primary);
+    margin-bottom: 16px;
+    transition: transform 0.3s ease;
+}
+
+.brand-badge:hover {
+    transform: rotate(15deg) scale(1.05);
+}
+
+.brand-badge svg {
+    width: 32px;
+    height: 32px;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* 🏷️ TABS FOR ROLE SELECTION */
+.role-tabs-label {
+    display: block;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-tabs {
+    display: flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
+    border: 1px solid var(--border-color);
+}
+
+.role-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+}
+
+.role-tab:hover:not(.active) {
+    color: var(--text-main);
+}
+
+.role-tab.active {
+    background: white;
+    color: var(--primary);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 📝 FORM FIELD STYLING */
+.form-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.input-group label {
+    display: block;
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+.input-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px 14px 12px 42px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--text-main);
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.input-wrapper input::placeholder {
+    color: var(--text-light);
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 4px var(--ring-focus);
+}
+
+/* 🟢 ACTION BUTTON */
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-button);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.login-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-button-hover);
+}
+
+.login-btn:active {
+    transform: translateY(1px);
+}
+
+/* ❌ ERROR ALERT MESSAGE */
+#error {
+    color: var(--error);
+    background: var(--error-bg);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-top: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    border: 1px dashed rgba(239, 68, 68, 0.2);
+    display: none; /* Hidden by default */
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+/* 🔗 LINKS AREA */
+.footer-links {
+    text-align: center;
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.footer-links a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+.footer-divider {
+    color: var(--border-color);
+}
+
+/* Responsive Styles */
+@media (max-width: 480px) {
+    .card-container {
+        width: 100%;
+        margin: 20px;
+        padding: 30px 20px;
+    }
+}
